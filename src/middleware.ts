@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export const config = {
-  matcher: ["/((?!api|login|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)"],
+  matcher: ["/((?!api|login|e|fotograf|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)"],
 };
 
 export function middleware(request: NextRequest) {
