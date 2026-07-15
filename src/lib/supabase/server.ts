@@ -1,8 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
-const guestToken = process.env.NEXT_PUBLIC_GUEST_TOKEN || "";
-
 export async function createClient() {
   const cookieStore = await cookies();
 
@@ -22,11 +20,6 @@ export async function createClient() {
           } catch {
             // ignore middleware
           }
-        },
-      },
-      global: {
-        headers: {
-          "x-guest-token": guestToken,
         },
       },
     }
