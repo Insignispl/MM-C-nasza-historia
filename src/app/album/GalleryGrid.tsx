@@ -49,21 +49,30 @@ export function GalleryGrid({ initialMedia }: { initialMedia: Media[] }) {
           <p className="text-sm">Bądź pierwszym gościem, który doda wspomnienie.</p>
         </div>
       ) : (
-        <div className="columns-1 gap-4 sm:columns-2 lg:columns-3">
-          {filtered.map((m) => (
+        <div className="grid auto-rows-[190px] grid-cols-2 gap-3 sm:auto-rows-[230px] sm:grid-cols-4 sm:gap-4">
+          {filtered.map((m, index) => {
+            const isFeature = index % 7 === 0;
+            const isTall = !isFeature && index % 5 === 2;
+            const tileClass = isFeature
+              ? "col-span-2 row-span-2"
+              : isTall
+                ? "row-span-2"
+                : "col-span-1 row-span-1";
+
+            return (
             <Dialog key={m.id}>
               <DialogTrigger asChild>
-                <div className="group relative mb-4 cursor-pointer overflow-hidden rounded-2xl border border-border bg-muted break-inside-avoid">
+                <div className={`group relative h-full cursor-pointer overflow-hidden rounded-2xl border border-white/70 bg-muted shadow-sm transition duration-300 hover:z-10 hover:-translate-y-1 hover:shadow-xl ${tileClass}`}>
                   {m.type === "image" ? (
                     <Image
                       src={m.public_url}
                       alt={m.caption || "Zdjęcie z wesela"}
-                      width={600}
-                      height={800}
-                      className="w-full object-cover transition duration-500 group-hover:scale-105"
+                      fill
+                      sizes="(max-width: 640px) 50vw, 25vw"
+                      className="object-cover transition duration-700 group-hover:scale-110"
                     />
                   ) : (
-                    <div className="relative aspect-video w-full">
+                    <div className="relative h-full w-full">
                       <video
                         src={m.public_url}
                         className="h-full w-full object-cover"
@@ -74,11 +83,10 @@ export function GalleryGrid({ initialMedia }: { initialMedia: Media[] }) {
                       </div>
                     </div>
                   )}
-                  {m.caption && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 text-white opacity-0 transition group-hover:opacity-100">
-                      <p className="text-sm font-medium">{m.caption}</p>
-                    </div>
-                  )}
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent p-4 pt-12 text-white opacity-0 transition duration-300 group-hover:opacity-100">
+                    {m.caption && <p className="text-sm font-medium">{m.caption}</p>}
+                    {m.guest_name && <p className="mt-1 text-xs text-white/80">od {m.guest_name}</p>}
+                  </div>
                 </div>
               </DialogTrigger>
               <DialogContent>
@@ -104,7 +112,8 @@ export function GalleryGrid({ initialMedia }: { initialMedia: Media[] }) {
                 )}
               </DialogContent>
             </Dialog>
-          ))}
+            );
+          })}
         </div>
       )}
     </>
