@@ -16,7 +16,7 @@ export function middleware(request: NextRequest) {
   if (basicAuth) {
     const [, value] = basicAuth.split(" ");
     const decoded = atob(value);
-    const [password] = decoded.split(":");
+    const [, password] = decoded.split(":");
     if (password === expectedPassword) {
       return NextResponse.next();
     }
