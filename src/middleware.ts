@@ -6,6 +6,10 @@ export const config = {
 };
 
 export function middleware(request: NextRequest) {
+  if (request.nextUrl.pathname === "/") {
+    return NextResponse.next();
+  }
+
   const expectedPassword = process.env.SITE_PASSWORD;
 
   if (!expectedPassword || request.cookies.get("site_access")?.value === expectedPassword) {
