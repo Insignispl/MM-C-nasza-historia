@@ -1,15 +1,14 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Heart, Image, Menu, PenLine, X } from "lucide-react";
+import { Camera, Heart, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 const links = [
-  { href: "/", label: "Historia", icon: Heart },
-  { href: "/album", label: "Album", icon: Image },
-  { href: "/ksiega", label: "Księga gości", icon: PenLine },
+  { href: "/#portfolio", label: "Portfolio", icon: Camera },
+  { href: "/#kontakt", label: "Kontakt", icon: Heart },
 ];
 
 export function Navbar() {
@@ -23,7 +22,7 @@ export function Navbar() {
           <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
             <Heart className="h-4 w-4" />
           </span>
-          <span className="hidden sm:inline">Maria & Michał</span>
+          <span className="hidden sm:inline">Joanna W.</span>
         </Link>
 
         <ul className="hidden items-center gap-1 md:flex">
@@ -46,13 +45,13 @@ export function Navbar() {
         </ul>
 
         <Link
-          href="/dodaj"
+          href="/#kontakt"
           className={cn(
             "hidden rounded-full bg-secondary px-5 py-2.5 text-sm font-semibold text-secondary-foreground shadow-sm transition hover:bg-secondary/90 md:inline-block",
-            pathname === "/dodaj" && "ring-2 ring-ring ring-offset-2"
+            pathname === "/#kontakt" && "ring-2 ring-ring ring-offset-2"
           )}
         >
-          Dodaj wspomnienie
+          Zapytaj o termin
         </Link>
 
         <button
@@ -84,11 +83,11 @@ export function Navbar() {
             ))}
             <li>
               <Link
-                href="/dodaj"
+                href="/#kontakt"
                 onClick={() => setOpen(false)}
                 className="mt-2 block rounded-xl bg-secondary px-4 py-3 text-center text-sm font-semibold text-secondary-foreground"
               >
-                Dodaj wspomnienie
+                Zapytaj o termin
               </Link>
             </li>
           </ul>
