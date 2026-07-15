@@ -18,6 +18,40 @@ const ACCEPTED_TYPES = [
   "video/webm",
 ];
 
+async function compressImageIfNeeded(file: File) {
+  if (file.size <= MAX_FILE_SIZE) return file;
+
+  const image = document.createElement("img");
+  const sourceUrl = URL.createObjectURL(file);
+  image.src = sourceUrl;
+  await image.decode();
+
+  let scale = Math.min(1, 4096 / Math.max(image.naturalWidth, image.naturalHeight));
+  let quality = 0.88;
+  let compressed: Blob | null = null;
+
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+    canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+    const context = canvas.getContext("2d");
+    context?.drawImage(image, 0, 0, canvas.width, canvas.height);
+    compressed = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", quality));
+
+    if (compressed && compressed.size <= MAX_FILE_SIZE) break;
+    quality = Math.max(0.45, quality - 0.1);
+    scale *= 0.8;
+  }
+
+  URL.revokeObjectURL(sourceUrl);
+
+  if (!compressed || compressed.size > MAX_FILE_SIZE) {
+    throw new Error("Zdjęcia nie udało się zmniejszyć do 100 MB. Wybierz mniejszy plik.");
+  }
+
+  return new File([compressed], `${file.name.replace(/\.[^.]+$/, "")}.jpg`, { type: "image/jpeg" });
+}
+
 export function UploadForm() {
   const supabase = createClient();
   const [tab, setTab] = useState<"media" | "message">("media");
@@ -30,14 +64,15 @@ export function UploadForm() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [uploadStatus, setUploadStatus] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
   function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     setError(null);
     const selected = Array.from(e.target.files || []);
     const valid = selected.filter((f) => {
-      if (f.size > MAX_FILE_SIZE) {
-        setError("Plik jest za duży. Maksymalny rozmiar to 100 MB.");
+      if (f.size > MAX_FILE_SIZE && !f.type.startsWith("image/")) {
+        setError("Film jest za duży. Maksymalny rozmiar to 100 MB. Skróć go lub skompresuj przed wysłaniem.");
         return false;
       }
       if (!ACCEPTED_TYPES.includes(f.type)) {
@@ -64,18 +99,26 @@ export function UploadForm() {
 
     try {
       for (const file of files) {
-        const ext = file.name.split(".").pop() || "";
+        const uploadFile = file.type.startsWith("image/")
+          ? await compressImageIfNeeded(file)
+          : file;
+        if (uploadFile !== file) {
+          setUploadStatus(`Kompresujemy zdjęcie: ${file.name}`);
+        } else {
+          setUploadStatus(`Przesyłamy: ${file.name}`);
+        }
+        const ext = uploadFile.name.split(".").pop() || "";
         const path = `public/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
         const { error: uploadError } = await supabase.storage
           .from("media")
-          .upload(path, file, { cacheControl: "3600", upsert: false });
+          .upload(path, uploadFile, { cacheControl: "3600", upsert: false });
 
         if (uploadError) throw uploadError;
 
         const { data: urlData } = supabase.storage.from("media").getPublicUrl(path);
         const publicUrl = urlData.publicUrl;
 
-        const type = file.type.startsWith("video") ? "video" : "image";
+        const type = uploadFile.type.startsWith("video") ? "video" : "image";
 
         const { error: insertError } = await supabase.from("media").insert({
           type,
@@ -96,6 +139,7 @@ export function UploadForm() {
       setError(err.message || "Wystąpił błąd podczas przesyłania.");
     } finally {
       setLoading(false);
+      setUploadStatus("");
     }
   }
 
@@ -183,7 +227,7 @@ export function UploadForm() {
             >
               <ImageIcon className="h-8 w-8" />
               <span className="text-sm font-medium">Kliknij, aby wybrać pliki</span>
-              <span className="text-xs">Maks. 100 MB / plik</span>
+              <span className="text-xs">Maks. 100 MB / plik · duże zdjęcia kompresujemy automatycznie</span>
             </button>
             <input
               ref={inputRef}
@@ -248,7 +292,7 @@ export function UploadForm() {
 
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-            {loading ? "Przesyłanie..." : "Prześlij zdjęcia / filmy"}
+            {loading ? uploadStatus || "Przesyłanie..." : "Prześlij zdjęcia / filmy"}
           </Button>
         </form>
       ) : (
