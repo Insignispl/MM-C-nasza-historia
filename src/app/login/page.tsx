@@ -72,7 +72,6 @@ export default function LoginPage() {
             {loading ? "Otwieramy album…" : "Wejdź do albumu"}
           </button>
         </form>
-        <p className="mt-6 text-center text-xs text-muted-foreground">Z miłością, Maria i Michał Czujko</p>
       </section>
     </main>
   );
