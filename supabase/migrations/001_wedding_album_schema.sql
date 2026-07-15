@@ -149,7 +149,7 @@ VALUES (
   'media',
   'media',
   true,
-  104857600,
+  262144000,
   ARRAY['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'video/mp4', 'video/quicktime', 'video/webm']
 )
 ON CONFLICT (id) DO NOTHING;

@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Image as ImageIcon, Film, PenLine, Loader2, CheckCircle2 } from "lucide-react";
 import { useState, useRef } from "react";
 
-const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB
+const MAX_FILE_SIZE = 250 * 1024 * 1024; // 250 MB
 const ACCEPTED_TYPES = [
   "image/jpeg",
   "image/png",
@@ -46,7 +46,7 @@ async function compressImageIfNeeded(file: File) {
   URL.revokeObjectURL(sourceUrl);
 
   if (!compressed || compressed.size > MAX_FILE_SIZE) {
-    throw new Error("Zdjęcia nie udało się zmniejszyć do 100 MB. Wybierz mniejszy plik.");
+    throw new Error("Zdjęcia nie udało się zmniejszyć do 250 MB. Wybierz mniejszy plik.");
   }
 
   return new File([compressed], `${file.name.replace(/\.[^.]+$/, "")}.jpg`, { type: "image/jpeg" });
@@ -72,7 +72,7 @@ export function UploadForm() {
     const selected = Array.from(e.target.files || []);
     const valid = selected.filter((f) => {
       if (f.size > MAX_FILE_SIZE && !f.type.startsWith("image/")) {
-        setError("Film jest za duży. Maksymalny rozmiar to 100 MB. Skróć go lub skompresuj przed wysłaniem.");
+        setError("Film jest za duży. Maksymalny rozmiar to 250 MB. Skróć go lub skompresuj przed wysłaniem.");
         return false;
       }
       if (!ACCEPTED_TYPES.includes(f.type)) {
@@ -227,7 +227,7 @@ export function UploadForm() {
             >
               <ImageIcon className="h-8 w-8" />
               <span className="text-sm font-medium">Kliknij, aby wybrać pliki</span>
-              <span className="text-xs">Maks. 100 MB / plik · duże zdjęcia kompresujemy automatycznie</span>
+              <span className="text-xs">Maks. 250 MB / plik · duże zdjęcia kompresujemy automatycznie</span>
             </button>
             <input
               ref={inputRef}
