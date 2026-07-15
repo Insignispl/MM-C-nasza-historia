@@ -1,0 +1,25 @@
+import { createClient } from "@/lib/supabase/server";
+import { Camera, Heart, Image as ImageIcon, MessageCircle, MonitorPlay, Upload } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+
+export default async function EventGuestPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const supabase = await createClient();
+  const { data: event } = await supabase.from("events").select("id,slug,couple_name,wedding_date,location,story_text,cover_image_url,primary_color,secondary_color,allow_uploads,live_wall_enabled").eq("slug", slug).single();
+  if (!event) notFound();
+  const [{ data: media }, { data: entries }] = await Promise.all([
+    supabase.from("event_media").select("id,type,public_url,caption,guest_name").eq("event_id", event.id).eq("approved", true).order("created_at", { ascending: false }).limit(6),
+    supabase.from("event_guestbook_entries").select("id,author_name,message").eq("event_id", event.id).eq("approved", true).order("created_at", { ascending: false }).limit(3),
+  ]);
+  const style = { "--event-primary": event.primary_color, "--event-secondary": event.secondary_color } as React.CSSProperties;
+
+  return <main style={style} className="min-h-screen bg-[#fcf9fc] text-foreground">
+    <section className="relative isolate overflow-hidden px-4 py-20 text-center sm:py-28"><div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_20%,var(--event-secondary),transparent_30%),radial-gradient(circle_at_80%_70%,var(--event-primary),transparent_38%)] opacity-25" />
+      <div className="mx-auto max-w-3xl"><span className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/70 px-4 py-2 text-sm shadow-sm"><Heart className="h-4 w-4 fill-[var(--event-primary)] text-[var(--event-primary)]" /> Prywatna pamiątka</span><h1 className="mt-7 font-serif text-5xl sm:text-7xl">{event.couple_name}</h1><p className="mt-5 text-lg text-muted-foreground">{event.wedding_date}{event.location ? ` · ${event.location}` : ""}</p><p className="mx-auto mt-7 max-w-xl leading-7 text-muted-foreground">{event.story_text || "Jesteśmy wdzięczni, że świętujesz ten wyjątkowy dzień razem z nami. Dodaj zdjęcie, film lub kilka ciepłych słów."}</p><div className="mt-9 flex flex-wrap justify-center gap-3">{event.allow_uploads && <Link href={`/e/${slug}/dodaj`} className="inline-flex items-center gap-2 rounded-full bg-[var(--event-primary)] px-6 py-3 font-semibold text-white shadow-lg"><Upload className="h-4 w-4" /> Dodaj wspomnienie</Link>}<a href="#album" className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-6 py-3 font-semibold"><ImageIcon className="h-4 w-4" /> Zobacz album</a></div></div>
+    </section>
+    <section id="album" className="mx-auto max-w-6xl px-4 py-14"><div className="mb-8 flex items-end justify-between"><div><p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--event-primary)]">Wspólne kadry</p><h2 className="mt-2 font-serif text-4xl">Album wieczoru</h2></div>{event.live_wall_enabled && <Link href={`/e/${slug}/live`} className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--event-primary)]"><MonitorPlay className="h-4 w-4" /> Live Wall</Link>}</div>{media?.length ? <div className="grid auto-rows-[160px] grid-cols-2 gap-3 sm:auto-rows-[230px] sm:grid-cols-4">{media.map((item, index) => <div key={item.id} className={`relative overflow-hidden rounded-3xl bg-muted shadow-sm ${index === 0 ? "col-span-2 row-span-2" : index === 3 ? "row-span-2" : ""}`}>{item.type === "image" ? <Image src={item.public_url} alt={item.caption || "Wspomnienie z wydarzenia"} fill className="object-cover" sizes="(max-width: 640px) 50vw, 25vw" /> : <video src={item.public_url} className="h-full w-full object-cover" preload="metadata" />}</div>)}</div> : <div className="rounded-3xl border border-dashed border-border bg-white/60 py-16 text-center text-muted-foreground"><Camera className="mx-auto mb-3 h-9 w-9 text-[var(--event-primary)]" />Album czeka na pierwsze wspomnienie.</div>}</section>
+    <section className="mx-auto max-w-5xl px-4 py-14"><div className="rounded-[2rem] bg-white p-7 shadow-sm sm:p-10"><p className="text-center text-sm font-semibold uppercase tracking-[0.16em] text-[var(--event-primary)]">Księga gości</p><h2 className="mt-2 text-center font-serif text-4xl">Słowa, które zostają</h2><div className="mt-8 grid gap-4 md:grid-cols-3">{entries?.map((entry) => <article key={entry.id} className="rounded-2xl bg-[#fcf8fc] p-5"><MessageCircle className="h-5 w-5 text-[var(--event-primary)]" /><p className="mt-4 font-serif leading-7">{entry.message}</p><p className="mt-5 text-sm font-semibold text-muted-foreground">{entry.author_name}</p></article>)}</div></div></section>
+  </main>;
+}
