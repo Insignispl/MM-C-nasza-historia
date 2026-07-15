@@ -1,0 +1,2 @@
+ALTER PUBLICATION supabase_realtime ADD TABLE public.event_media;
+ALTER TABLE public.event_media REPLICA IDENTITY FULL;
