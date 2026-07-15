@@ -21,7 +21,7 @@ export default async function HomePage() {
     .from("media")
     .select("*")
     .eq("approved", true)
-    .eq("featured", true)
+    .order("featured", { ascending: false })
     .order("created_at", { ascending: false })
     .limit(4);
 
