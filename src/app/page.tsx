@@ -1,3 +1,4 @@
+import { PhotographerLanding } from "./PhotographerLanding";
 import { Button } from "@/components/ui/Button";
 import { createClient } from "@/lib/supabase/server";
 import { formatWeddingDate } from "@/lib/utils";
@@ -7,6 +8,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export default async function HomePage() {
+  return <PhotographerLanding />;
+
   const supabase = await createClient();
   const { data: settings } = await supabase
     .from("wedding_settings")
