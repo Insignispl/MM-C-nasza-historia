@@ -3,8 +3,6 @@ import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Inter, Playfair_Display } from "next/font/google";
-import { createClient } from "@/lib/supabase/server";
-import { formatWeddingDate } from "@/lib/utils";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -25,68 +23,27 @@ export const viewport: Viewport = {
   themeColor: "#9f7aea",
 };
 
-export async function generateMetadata(): Promise<Metadata> {
-  const supabase = await createClient();
-  const { data: settings } = await supabase
-    .from("wedding_settings")
-    .select("couple_name,wedding_date,location")
-    .single();
-
-  const title = `${settings?.couple_name ?? "Maria i Michał Czujko"} | ${formatWeddingDate(settings?.wedding_date) ?? "27 czerwca 2026"} | ${settings?.location ?? "Polkowice"}`;
-  const description = `Pamiątkowa strona ślubna ${settings?.couple_name ?? "Marii i Michała Czujko"}. Zobacz zdjęcia, filmy i zostaw wpis w księdze gości.`;
-
-  return {
-    title,
-    description,
-    keywords: ["ślub", "album ślubny", "wesele", "zdjęcia ślubne", "księga gości", "Polkowice"],
-    authors: [{ name: settings?.couple_name ?? "Maria i Michał Czujko" }],
-    openGraph: {
-      title,
-      description,
-      type: "website",
-      locale: "pl_PL",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-    },
-    alternates: {
-      canonical: "/",
-    },
-    robots: {
-      index: true,
-      follow: true,
-    },
-  };
-}
+export const metadata: Metadata = {
+  title: { default: "Story Atelier | Fotografia i Event Story", template: "%s | Story Atelier" },
+  description: "Story Atelier tworzy reporterskie fotografie i cyfrowe opowieści o najważniejszych wydarzeniach.",
+  keywords: ["fotografia reportażowa", "fotografia ślubna", "event story", "fotograf eventowy"],
+  authors: [{ name: "Story Atelier" }],
+  openGraph: { type: "website", locale: "pl_PL", siteName: "Story Atelier", title: "Story Atelier | Fotografia i Event Story", description: "Reporterskie fotografie i cyfrowe opowieści o najważniejszych wydarzeniach." },
+  twitter: { card: "summary_large_image" },
+  alternates: { canonical: "/" },
+};
 
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const supabase = await createClient();
-  const { data: settings } = await supabase
-    .from("wedding_settings")
-    .select("couple_name,wedding_date,location")
-    .single();
-
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "Event",
-    name: `Ślub ${settings?.couple_name ?? "Marii i Michała Czujko"}`,
-    startDate: settings?.wedding_date ?? "2026-06-27",
-    location: {
-      "@type": "Place",
-      name: settings?.location ?? "Polkowice",
-      address: {
-        "@type": "PostalAddress",
-        addressLocality: settings?.location ?? "Polkowice",
-        addressCountry: "PL",
-      },
-    },
-    description: "Pamiątkowa strona ślubna ze zdjęciami, filmami i księgą gości.",
+    "@type": "ProfessionalService",
+    name: "Story Atelier",
+    description: "Fotografia reporterska i Event Story.",
+    areaServed: "Polska",
   };
 
   return (

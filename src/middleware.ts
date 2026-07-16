@@ -6,6 +6,10 @@ export const config = {
 };
 
 export function middleware(request: NextRequest) {
+  if (["/album", "/ksiega", "/dodaj", "/admin"].includes(request.nextUrl.pathname)) {
+    return NextResponse.redirect(new URL("/", request.url), 308);
+  }
+
   if (request.nextUrl.pathname === "/") {
     return NextResponse.next();
   }

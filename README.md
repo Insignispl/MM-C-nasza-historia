@@ -1,13 +1,13 @@
-# Joanna W. — Fotografia i Event Story
+# Story Atelier — Fotografia i Event Story
 
-Prywatny system Joanny W. do obsługi klientów fotograficznych: wizytówka, portfolio reportaży oraz prywatne cyfrowe pamiątki wydarzeń.
+Prywatny system Story Atelier do obsługi klientów fotograficznych: wizytówka, portfolio reportaży oraz prywatne cyfrowe pamiątki wydarzeń.
 
 ## Architektura produktu
 
-- **Wizytówka** — `/` to publiczna strona Joanny z portfolio i kontaktem.
+- **Wizytówka** — `/` to publiczna strona Story Atelier z portfolio i kontaktem.
 - **Portfolio** — `/historia/[slug]` to komercyjna prezentacja reportażu. Nie ma tam uploadu, księgi gości, danych gości ani pełnego nazwiska klientów.
 - **Prywatne wydarzenie** — `/e/[slug]` to karta konkretnej Pary: album, Event Story, upload zdjęć/filmów, księga, kiosk i Live Wall.
-- **CRM Joanny** — `/fotograf` jest panelem po logowaniu do tworzenia wydarzeń, moderacji i konfiguracji QR, kiosku oraz Live Wall.
+- **CRM Story Atelier** — `/fotograf` jest panelem po logowaniu do tworzenia wydarzeń, moderacji i konfiguracji QR, kiosku oraz Live Wall.
 
 ## Funkcje
 
@@ -38,7 +38,7 @@ Aplikacja działa na `http://localhost:3000`.
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<publishable-anon-key>
-NEXT_PUBLIC_BASE_URL=http://localhost:3000
+NEXT_PUBLIC_BASE_URL=https://storyatelier.pl
 SITE_PASSWORD=<optional-legacy-site-password>
 ```
 
@@ -63,4 +63,4 @@ Ustaw te same zmienne środowiskowe w Netlify. Po wdrożeniu sprawdź:
 
 ## Ograniczenia wdrożenia
 
-System jest przeznaczony wyłącznie dla Joanny W. i jej klientów. Nie uruchamiaj publicznej rejestracji innych fotografów. Dla nowego fotografa utwórz osobną, brandowaną instancję i oddzielny projekt Supabase.
+System jest przeznaczony wyłącznie dla Story Atelier i jego klientów. Nie uruchamiaj publicznej rejestracji innych fotografów. Dla nowego fotografa utwórz osobną, brandowaną instancję i oddzielny projekt Supabase.

@@ -7,7 +7,7 @@ export function Footer() {
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 md:flex-row">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Heart className="h-4 w-4 fill-primary text-primary" />
-          <span>Joanna W. · Fotografia i Event Story</span>
+          <span>Story Atelier · Fotografia i Event Story</span>
         </div>
         <div className="flex gap-6 text-sm text-muted-foreground">
           <Link href="/#portfolio" className="hover:text-foreground">Portfolio</Link>

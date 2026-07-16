@@ -22,7 +22,7 @@ export function Navbar() {
           <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
             <Heart className="h-4 w-4" />
           </span>
-          <span className="hidden sm:inline">Joanna W.</span>
+          <span className="hidden sm:inline">Story Atelier</span>
         </Link>
 
         <ul className="hidden items-center gap-1 md:flex">
