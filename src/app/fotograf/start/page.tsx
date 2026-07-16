@@ -35,15 +35,17 @@ export default function PhotographerStartPage() {
     setError("");
     setNotice("");
 
+    const normalizedEmail = email.trim().replace(/^["']|["']$/g, "");
+
     if (mode === "signin") {
-      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password });
       if (signInError) setError(signInError.message);
       else window.location.assign("/fotograf");
       setLoading(false);
       return;
     }
 
-    const { data, error: signUpError } = await supabase.auth.signUp({ email, password });
+    const { data, error: signUpError } = await supabase.auth.signUp({ email: normalizedEmail, password });
     if (signUpError) {
       setError(signUpError.message);
       setLoading(false);
