@@ -89,3 +89,51 @@ body {
   from { opacity: 0; transform: translateY(24px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+.story-template-romantic {
+  background-image: radial-gradient(circle at 14% 18%, color-mix(in srgb, var(--story-gradient-from) 30%, transparent), transparent 30%), radial-gradient(circle at 88% 76%, color-mix(in srgb, var(--story-gradient-to) 28%, transparent), transparent 34%);
+}
+
+.story-template-romantic article {
+  animation: slideUp 0.55s ease-out both;
+}
+
+.story-template-editorial {
+  letter-spacing: 0.01em;
+}
+
+.story-template-editorial h1,
+.story-template-editorial h2,
+.story-template-editorial h3 {
+  letter-spacing: -0.035em;
+}
+
+.story-template-editorial article,
+.story-template-editorial section > div > article {
+  border-radius: 0.25rem;
+}
+
+.story-template-editorial section > div > article:nth-child(odd) {
+  border-left: 3px solid var(--story-gradient-from);
+}
+
+.story-template-midnight {
+  background-image: radial-gradient(circle at 15% 15%, color-mix(in srgb, var(--story-gradient-from) 42%, transparent), transparent 30%), radial-gradient(circle at 82% 70%, color-mix(in srgb, var(--story-gradient-to) 34%, transparent), transparent 38%);
+}
+
+.story-template-romantic .text-muted-foreground,
+.story-template-editorial .text-muted-foreground,
+.story-template-midnight .text-muted-foreground {
+  color: color-mix(in srgb, var(--story-text) 72%, transparent) !important;
+}
+
+.story-template-midnight .bg-white,
+.story-template-midnight .bg-white\/80,
+.story-template-midnight .bg-white\/60 {
+  background-color: color-mix(in srgb, var(--story-background) 82%, white 18%) !important;
+}
+
+.story-template-midnight article {
+  border-color: color-mix(in srgb, var(--story-gradient-to) 30%, transparent) !important;
+  box-shadow: 0 18px 45px color-mix(in srgb, var(--story-gradient-from) 16%, transparent);
+}

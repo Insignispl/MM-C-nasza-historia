@@ -135,8 +135,8 @@ export function UploadForm() {
       setCaption("");
       setGuestName("");
       setSuccess(true);
-    } catch (err: any) {
-      setError(err.message || "Wystąpił błąd podczas przesyłania.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Wystąpił błąd podczas przesyłania.");
     } finally {
       setLoading(false);
       setUploadStatus("");
@@ -165,8 +165,8 @@ export function UploadForm() {
       setRelation("");
       setMessage("");
       setSuccess(true);
-    } catch (err: any) {
-      setError(err.message || "Wystąpił błąd podczas zapisywania wpisu.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Wystąpił błąd podczas zapisywania wpisu.");
     } finally {
       setLoading(false);
     }

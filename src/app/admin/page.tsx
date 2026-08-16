@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { createAdminClient } from "@/lib/supabase/admin-client";
-import { Check, Eye, Trash2, X } from "lucide-react";
+import { Check, Trash2, X } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
@@ -12,7 +12,7 @@ interface PendingItem {
   id: string;
   type: "media" | "entry";
   created_at: string;
-  data: any;
+  data: { type?: "image" | "video"; public_url?: string; storage_path?: string; author_name?: string; message?: string };
 }
 
 export default function AdminPage() {
@@ -48,8 +48,8 @@ export default function AdminPage() {
     ]);
 
     const mapped: PendingItem[] = [
-      ...(media || []).map((m) => ({ id: m.id, type: "media" as const, created_at: m.created_at, data: m })),
-      ...(entries || []).map((e) => ({ id: e.id, type: "entry" as const, created_at: e.created_at, data: e })),
+      ...(media || []).map((m) => ({ id: m.id, type: "media" as const, created_at: m.created_at, data: m as PendingItem["data"] })),
+      ...(entries || []).map((e) => ({ id: e.id, type: "entry" as const, created_at: e.created_at, data: e as PendingItem["data"] })),
     ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
     setItems(mapped);
@@ -137,20 +137,20 @@ export default function AdminPage() {
                   <div className="mb-4 overflow-hidden rounded-xl border border-border">
                     {item.data.type === "image" ? (
                       <Image
-                        src={item.data.public_url}
+                        src={item.data.public_url || ""}
                         alt="Podgląd"
                         width={800}
                         height={500}
                         className="w-full object-contain"
                       />
                     ) : (
-                      <video src={item.data.public_url} controls className="w-full" />
+                      <video src={item.data.public_url || ""} controls className="w-full" />
                     )}
                   </div>
                 ) : (
                   <div className="mb-4 rounded-xl border border-border bg-muted/50 p-5">
-                    <p className="mb-2 font-medium text-foreground">{item.data.author_name}</p>
-                    <p className="whitespace-pre-line text-muted-foreground">{item.data.message}</p>
+                    <p className="mb-2 font-medium text-foreground">{item.data.author_name || "Gość"}</p>
+                    <p className="whitespace-pre-line text-muted-foreground">{item.data.message || ""}</p>
                   </div>
                 )}
 

@@ -4,16 +4,16 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { StudioOnboarding } from "./StudioOnboarding";
 import { createClient } from "@/lib/supabase/client";
-import { CalendarDays, ExternalLink, Loader2, LogOut, MonitorPlay, Plus, QrCode, Settings2 } from "lucide-react";
+import { ExternalLink, Loader2, LogOut, MonitorPlay, Plus, QrCode, Settings2 } from "lucide-react";
 import Link from "next/link";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 
 type Event = { id: string; studio_id: string; slug: string; couple_name: string; wedding_date: string | null; location: string | null; status: "draft" | "live" | "archived"; kiosk_enabled: boolean; live_wall_enabled: boolean };
 
 const slugify = (value: string) => value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "").slice(0, 48);
 
 export function PhotographerDashboard() {
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const [events, setEvents] = useState<Event[]>([]);
   const [studioId, setStudioId] = useState("");
   const [loading, setLoading] = useState(true);
@@ -21,26 +21,41 @@ export function PhotographerDashboard() {
   const [error, setError] = useState("");
   const [creating, setCreating] = useState(false);
 
-  async function load() {
-    setLoading(true);
+  const loadEvents = useCallback(async () => {
     const { data: userData } = await supabase.auth.getUser();
     if (!userData.user) {
       window.location.assign("/fotograf/start");
-      return;
+      return null;
     }
     const { data: memberships, error: membershipError } = await supabase.from("studio_members").select("studio_id").eq("user_id", userData.user.id);
-    if (membershipError) setError(membershipError.message);
     const ids = memberships?.map((member) => member.studio_id) ?? [];
-    if (ids.length) {
-      const { data, error: eventsError } = await supabase.from("events").select("id,studio_id,slug,couple_name,wedding_date,location,status,kiosk_enabled,live_wall_enabled").in("studio_id", ids).order("created_at", { ascending: false });
-      if (eventsError) setError(eventsError.message);
-      setEvents((data as Event[]) ?? []);
-      setStudioId(ids[0]);
+    if (!ids.length) return { events: [] as Event[], studioId: "", error: membershipError?.message ?? "" };
+    const { data, error: eventsError } = await supabase.from("events").select("id,studio_id,slug,couple_name,wedding_date,location,status,kiosk_enabled,live_wall_enabled").in("studio_id", ids).order("created_at", { ascending: false });
+    return { events: (data as Event[]) ?? [], studioId: ids[0], error: eventsError?.message ?? membershipError?.message ?? "" };
+  }, [supabase]);
+
+  useEffect(() => {
+    let mounted = true;
+    loadEvents().then((result) => {
+      if (!mounted || !result) return;
+      if (result.error) setError(result.error);
+      setEvents(result.events);
+      if (result.studioId) setStudioId(result.studioId);
+      setLoading(false);
+    });
+    return () => { mounted = false; };
+  }, [loadEvents]);
+
+  async function refresh() {
+    setLoading(true);
+    const result = await loadEvents();
+    if (result) {
+      if (result.error) setError(result.error);
+      setEvents(result.events);
+      if (result.studioId) setStudioId(result.studioId);
     }
     setLoading(false);
   }
-
-  useEffect(() => { load(); }, []);
 
   async function createEvent(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -58,7 +73,7 @@ export function PhotographerDashboard() {
       status: "draft",
     });
     if (createError) setError(createError.message);
-    else { setShowCreate(false); await load(); }
+    else { setShowCreate(false); await refresh(); }
     setCreating(false);
   }
 

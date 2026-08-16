@@ -13,16 +13,15 @@ export function ReactionBar({ eventId }: { eventId: string }) {
   const [sending, setSending] = useState<Emoji | null>(null);
 
   useEffect(() => {
-    async function load() {
-      const { data } = await supabase.from("event_reactions").select("emoji").eq("event_id", eventId);
-      const next = { "❤️": 0, "🥂": 0, "😂": 0, "🔥": 0, "👏": 0 };
-      data?.forEach(({ emoji }) => { if (emoji in next) next[emoji as Emoji] += 1; });
+    const initial = { "❤️": 0, "🥂": 0, "😂": 0, "🔥": 0, "👏": 0 };
+    supabase.from("event_reactions").select("emoji").eq("event_id", eventId).then(({ data }) => {
+      const next = { ...initial };
+      data?.forEach(({ emoji }) => { if (emojis.some((e) => e === emoji)) next[emoji as Emoji] += 1; });
       setCounts(next);
-    }
-    load();
+    });
     const channel = supabase.channel(`reactions-${eventId}`).on("postgres_changes", { event: "INSERT", schema: "public", table: "event_reactions", filter: `event_id=eq.${eventId}` }, ({ new: reaction }) => {
       const emoji = (reaction as { emoji: Emoji }).emoji;
-      if (emoji in counts) setCounts((current) => ({ ...current, [emoji]: current[emoji] + 1 }));
+      if (emojis.some((e) => e === emoji)) setCounts((current) => ({ ...current, [emoji]: current[emoji] + 1 }));
     }).subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [eventId, supabase]);
