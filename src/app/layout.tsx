@@ -3,6 +3,7 @@ import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Inter, Playfair_Display } from "next/font/google";
+import { THEME_BOOTSTRAP_SCRIPT } from "@/lib/theme";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -20,15 +21,18 @@ const playfair = Playfair_Display({
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#9f7aea",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ebe9e5" },
+    { media: "(prefers-color-scheme: dark)", color: "#211e1c" },
+  ],
 };
 
 export const metadata: Metadata = {
-  title: { default: "Story Atelier | Fotografia i Event Story", template: "%s | Story Atelier" },
-  description: "Story Atelier tworzy reporterskie fotografie i cyfrowe opowieści o najważniejszych wydarzeniach.",
-  keywords: ["fotografia reportażowa", "fotografia ślubna", "event story", "fotograf eventowy"],
+  title: { default: "Story Atelier | Fotografia, film i studio nagrań — Wrocław i Polkowice", template: "%s | Story Atelier" },
+  description: "Reportaż ślubny, film z gimbala i drona, wideo na zamówienie oraz wynajem studia nagraniowego we Wrocławiu. Dwa biura: Wrocław i Polkowice.",
+  keywords: ["fotograf ślubny Wrocław", "fotograf Polkowice", "film ślubny", "studio nagraniowe Wrocław", "wynajem studia podcast", "wideo na zamówienie", "dron", "kamerzysta na wesele"],
   authors: [{ name: "Story Atelier" }],
-  openGraph: { type: "website", locale: "pl_PL", siteName: "Story Atelier", title: "Story Atelier | Fotografia i Event Story", description: "Reporterskie fotografie i cyfrowe opowieści o najważniejszych wydarzeniach." },
+  openGraph: { type: "website", locale: "pl_PL", siteName: "Story Atelier", title: "Story Atelier | Fotografia, film i studio nagrań", description: "Reportaż ślubny, film, wideo na zamówienie i wynajem studia nagraniowego. Wrocław i Polkowice." },
   twitter: { card: "summary_large_image" },
   alternates: { canonical: "/" },
 };
@@ -47,8 +51,14 @@ export default async function RootLayout({
   };
 
   return (
-    <html lang="pl" className={`${inter.variable} ${playfair.variable}`}>
+    // suppressHydrationWarning dotyczy WYLACZNIE tego elementu i jego atrybutow:
+    // skrypt w <head> dopisuje data-theme przed hydratacja, wiec serwer i klient
+    // z definicji sie tu roznia. Nie tlumi to rozjazdow w tresci strony.
+    <html lang="pl" suppressHydrationWarning className={`${inter.variable} ${playfair.variable}`}>
       <head>
+        {/* Musi byc pierwszy i synchroniczny: ustawia motyw przed pierwszym malowaniem,
+            inaczej na projektorze w zaciemnionej sali widac blysk bialego tla. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP_SCRIPT }} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

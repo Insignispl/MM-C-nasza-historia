@@ -1,14 +1,16 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Camera, Heart, Menu, X } from "lucide-react";
+import { Aperture, Camera, MapPin, Menu, Mic, Sparkles, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 const links = [
-  { href: "/#portfolio", label: "Portfolio", icon: Camera },
-  { href: "/#kontakt", label: "Kontakt", icon: Heart },
+  { href: "/#uslugi", label: "Usługi", icon: Sparkles },
+  { href: "/studio", label: "Studio nagrań", icon: Mic },
+  { href: "/#realizacje", label: "Realizacje", icon: Camera },
+  { href: "/#kontakt", label: "Kontakt", icon: MapPin },
 ];
 
 export function Navbar() {
@@ -20,7 +22,7 @@ export function Navbar() {
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
         <Link href="/" className="flex items-center gap-2 text-lg font-semibold tracking-tight text-foreground">
           <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
-            <Heart className="h-4 w-4" />
+            <Aperture className="h-4 w-4" />
           </span>
           <span className="hidden sm:inline">Story Atelier</span>
         </Link>
@@ -64,7 +66,7 @@ export function Navbar() {
       </nav>
 
       {open && (
-        <div className="border-t border-border bg-white/90 px-4 py-4 md:hidden">
+        <div className="glass border-t border-border px-4 py-4 md:hidden">
           <ul className="flex flex-col gap-2">
             {links.map((l) => (
               <li key={l.href}>

@@ -5,26 +5,105 @@
   --font-serif: var(--font-playfair), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
 }
 
+/* Neutralna chlodna baza: tlo nie przeklamuje kolorow zdjecia i nie konkuruje z nim
+   jasnoscia. Jedyny akcent barwny to mosiadz - kolor swiatla zarowego, ktore stoi
+   w studiu - uzywany oszczednie. */
 :root {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-serif: var(--font-playfair), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-  --radius: 0.75rem;
+  --radius: 0.5rem;
   --background: 0 0% 100%;
-  --foreground: 30 10% 15%;
+  --foreground: 240 10% 4%;
   --card: 0 0% 100%;
-  --card-foreground: 30 10% 15%;
-  --primary: 262 50% 67%;
+  --card-foreground: 240 10% 4%;
+  --primary: 240 10% 4%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 38 85% 77%;
-  --secondary-foreground: 30 10% 15%;
-  --muted: 30 20% 96%;
-  --muted-foreground: 30 5% 40%;
-  --border: 30 20% 90%;
-  --input: 30 20% 90%;
-  --ring: 262 50% 67%;
+  --secondary: 240 6% 96%;
+  --secondary-foreground: 240 10% 4%;
+  --muted: 240 6% 97%;
+  --muted-foreground: 240 5% 36%;
+  /* --border to dekoracyjna wloskowa kreska; --input identyfikuje kontrolke,
+     wiec musi spelniac 3:1 wg WCAG 1.4.11. */
+  --border: 240 6% 90%;
+  --input: 240 5% 50%;
+  --ring: 24 95% 45%;
+  /* Na bialym tle pelny #FF7900 daje 2,63:1 - za malo nawet na duzy tekst.
+     Jasny motyw dostaje wiec ciemniejszy wariant do TEKSTU; pelne nasycenie
+     zyje na ciemnych powierzchniach, gdzie ma 7,5:1. */
+  --accent: 24 95% 42%;
+  --accent-foreground: 0 0% 100%;
+  --mount-gap: clamp(1.25rem, 4vw, 3.5rem);
+  --mount-shadow: 0 24px 60px hsl(240 10% 4% / 0.12);
 }
 
-@theme inline {
+/* Galeria po zmroku. Bez data-theme decyduje ustawienie systemu gościa. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --background: 240 8% 6%;
+    --foreground: 40 14% 96%;
+    --card: 240 6% 11%;
+    --card-foreground: 40 14% 96%;
+    --primary: 40 14% 96%;
+    --primary-foreground: 240 8% 6%;
+    --secondary: 240 5% 15%;
+    --secondary-foreground: 40 14% 96%;
+    --muted: 240 5% 15%;
+    --muted-foreground: 240 5% 66%;
+    --border: 240 5% 22%;
+    --input: 240 5% 42%;
+    --ring: 38 82% 60%;
+    --accent: 38 82% 60%;
+    --accent-foreground: 240 8% 6%;
+    --mount-shadow: 0 18px 40px hsl(0 0% 0% / 0.5);
+  }
+}
+
+:root[data-theme="dark"] {
+  --background: 240 8% 6%;
+  --foreground: 40 14% 96%;
+  --card: 240 6% 11%;
+  --card-foreground: 40 14% 96%;
+  --primary: 40 14% 96%;
+  --primary-foreground: 240 8% 6%;
+  --secondary: 240 5% 15%;
+  --secondary-foreground: 40 14% 96%;
+  --muted: 240 5% 15%;
+  --muted-foreground: 240 5% 66%;
+  --border: 240 5% 22%;
+  --input: 240 5% 42%;
+  --ring: 38 82% 60%;
+  --accent: 38 82% 60%;
+  --accent-foreground: 240 8% 6%;
+  --mount-shadow: 0 18px 40px hsl(0 0% 0% / 0.5);
+}
+
+/* Tryb sali: projektor i tablet w zaciemnionej sali. Zadnej bialej plaszczyzny,
+   maksymalny kontrast, cienie wylaczone - na czarnym tle sa niewidoczne,
+   a tanie tablety placa za nie plynnoscia. */
+:root[data-theme="hall"] {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --card: 0 0% 4%;
+  --card-foreground: 0 0% 100%;
+  --primary: 0 0% 100%;
+  --primary-foreground: 0 0% 0%;
+  --secondary: 0 0% 10%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 0 0% 8%;
+  --muted-foreground: 0 0% 74%;
+  --border: 0 0% 26%;
+  --input: 0 0% 37%;
+  --ring: 0 0% 100%;
+  --accent: 0 0% 100%;
+  --accent-foreground: 0 0% 0%;
+  --mount-shadow: none;
+}
+
+/* BEZ `inline` swiadomie. Z `inline` Tailwind wstawia wartosc w miejscu uzycia,
+   czyli `bg-background` kompiluje sie do `hsl(var(--background))` i CALKOWICIE omija
+   `--color-background`. Wszystkie zasiegi w tym pliku (.surface-studio, .frame-*,
+   .story-template-*) nadpisuja wlasnie `--color-*`, wiec bez tej zmiany nie dzialaja. */
+@theme {
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-card: hsl(var(--card));
@@ -38,6 +117,8 @@
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
@@ -68,15 +149,112 @@ body {
     animation: slideUp 0.6s ease-out both;
   }
 
+  /* Zachowane nazwy klas, nowa tresc - wywolania w 5 plikach zostaja nietkniete,
+     a wyglad zmienia sie w jednym miejscu. */
   .bg-gradient-wedding {
-    background: linear-gradient(135deg, hsl(var(--primary) / 0.12), hsl(var(--secondary) / 0.25), hsl(var(--primary) / 0.08));
+    background: hsl(var(--muted));
   }
 
   .glass {
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    background: hsl(var(--card) / 0.92);
+    backdrop-filter: saturate(140%) blur(8px);
+    -webkit-backdrop-filter: saturate(140%) blur(8px);
+    border-bottom: 1px solid hsl(var(--border));
+  }
+
+  /* Powierzchnia studyjna: strona marketingowa jest ciemna ZAWSZE, niezaleznie od motywu.
+     To decyzja marki, nie preferencja - ciemne, neutralne tlo nie przeklamuje kolorow
+     zdjec i nie konkuruje z nimi jasnoscia. Realizowana jako zasieg tokenow, wiec
+     w komponentach nie ma ani jednego koloru na sztywno. */
+  .surface-studio {
+    --color-background: hsl(240 8% 6%);
+    --color-foreground: hsl(40 14% 96%);
+    --color-card: hsl(240 6% 11%);
+    --color-card-foreground: hsl(40 14% 96%);
+    --color-primary: hsl(40 14% 96%);
+    --color-primary-foreground: hsl(240 8% 6%);
+    --color-secondary: hsl(240 5% 15%);
+    --color-muted: hsl(240 5% 14%);
+    /* Opisy uslug to TRESC, nie podpis - 72% daje 9,5:1 na tle studia.
+       Ponizej ~65% tekst zaczyna wygladac na wygaszony, a nie na drugorzedny. */
+    --color-muted-foreground: hsl(240 5% 72%);
+    --color-border: hsl(240 5% 20%);
+    --color-input: hsl(240 5% 42%);
+    --color-accent: hsl(38 82% 60%);
+    --color-accent-foreground: hsl(240 8% 6%);
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+  }
+
+  /* Jasna przeciwwaga dla .surface-studio - sekcje ida na przemian, zeby strona
+     miala rytm zamiast jednego dlugiego ciemnego pasa. */
+  .surface-paper {
+    --color-background: hsl(0 0% 100%);
+    --color-foreground: hsl(240 10% 4%);
+    --color-card: hsl(0 0% 100%);
+    --color-card-foreground: hsl(240 10% 4%);
+    --color-primary: hsl(240 10% 4%);
+    --color-primary-foreground: hsl(0 0% 100%);
+    --color-secondary: hsl(240 6% 96%);
+    --color-muted: hsl(240 6% 96%);
+    --color-muted-foreground: hsl(240 6% 32%);
+    --color-border: hsl(240 6% 88%);
+    --color-input: hsl(240 5% 50%);
+    /* Na bieli pelny #FF7900 ma 2,63:1 - do tekstu idzie ciemniejszy wariant. */
+    --color-accent: hsl(24 95% 42%);
+    --color-accent-foreground: hsl(0 0% 100%);
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+  }
+
+  /* Perforacja tasmy filmowej jako przerywnik miedzy sekcjami. Ten sam motyw
+     wypalamy w zdjecia z fotobudki (wariant "film"), wiec serwis i pamiatka
+     mowia tym samym jezykiem. */
+  .film-edge {
+    height: 2.25rem;
+    background: repeating-linear-gradient(90deg, var(--color-border) 0 14px, transparent 14px 34px) center / 100% 8px no-repeat;
+  }
+
+  /* Znaczniki kadrowania z celownika aparatu. Jedyna ozdoba, na ktora sobie
+     pozwalamy - i jedyne miejsce, gdzie akcent wystepuje jako linia. */
+  .viewfinder { position: relative; }
+  .viewfinder::before,
+  .viewfinder::after {
+    content: "";
+    position: absolute;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: 2px solid var(--color-accent);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .viewfinder::before { top: 0.9rem; left: 0.9rem; border-right: 0; border-bottom: 0; }
+  .viewfinder::after { bottom: 0.9rem; right: 0.9rem; border-left: 0; border-top: 0; }
+
+  /* Sygnatura kierunku: karton oprawy. Zdjecie nigdy nie dotyka krawedzi. */
+  .mount {
+    background: hsl(var(--card));
+    padding: var(--mount-gap);
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    box-shadow: var(--mount-shadow);
+  }
+
+  /* Podpis muzealny: maly, pod kadrem, nigdy na nim. */
+  .plate {
+    color: hsl(var(--muted-foreground));
+    font-size: 0.8125rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
@@ -121,16 +299,61 @@ body {
   background-image: radial-gradient(circle at 15% 15%, color-mix(in srgb, var(--story-gradient-from) 42%, transparent), transparent 30%), radial-gradient(circle at 82% 70%, color-mix(in srgb, var(--story-gradient-to) 34%, transparent), transparent 38%);
 }
 
-.story-template-romantic .text-muted-foreground,
-.story-template-editorial .text-muted-foreground,
-.story-template-midnight .text-muted-foreground {
-  color: color-mix(in srgb, var(--story-text) 72%, transparent) !important;
+/* Styl kartonu oprawy fotobudki, wybierany dla wydarzenia (events.kiosk_frame_style).
+   Kazdy wariant maluje siebie ORAZ przedefiniowuje tokeny dla swojego wnetrza.
+   Dzieki temu tekst, pola i zakladki w fotobudce czytaja tokeny - a cztery warianty
+   pozostaja rozroznialne, co przy podmianie ich na wspolny `border-border`
+   przestaloby dzialac po cichu (fotograf wybiera styl i nic sie nie zmienia). */
+.frame-classic,
+.frame-film,
+.frame-neon,
+.frame-minimal {
+  --color-foreground: hsl(0 0% 100%);
+  --color-card: hsl(0 0% 100% / 0.06);
+  --color-muted: hsl(0 0% 100% / 0.1);
+  --color-muted-foreground: hsl(0 0% 100% / 0.7);
+  --color-input: hsl(0 0% 100% / 0.25);
 }
 
-.story-template-midnight .bg-white,
-.story-template-midnight .bg-white\/80,
-.story-template-midnight .bg-white\/60 {
-  background-color: color-mix(in srgb, var(--story-background) 82%, white 18%) !important;
+.frame-classic {
+  --color-background: #18101c;
+  --color-border: hsl(0 0% 100% / 0.1);
+  background-image: linear-gradient(to bottom right, #4b2e56, #18101c);
+}
+
+.frame-film {
+  --color-background: #0b0b0b;
+  --color-border: hsl(48 96% 89% / 0.7);
+  background-color: #0b0b0b;
+}
+
+.frame-neon {
+  --color-background: #120c16;
+  --color-border: hsl(292 91% 73%);
+  background-color: #120c16;
+  box-shadow: 0 25px 50px -12px hsl(292 91% 60% / 0.3);
+}
+
+.frame-minimal {
+  --color-background: #141018;
+  --color-border: hsl(0 0% 100% / 0.15);
+  background-color: #141018;
+}
+
+/* Szablony wydarzenia nadpisuja TOKENY, a nie nazwy klas.
+   Poprzednia wersja celowala w dosłowne `.bg-white` i `!important` - taka regula
+   przestaje cokolwiek dopasowywac w chwili, gdy komponent zamieni klase na `bg-card`,
+   i robi to bez bledu w buildzie. Nadpisanie tokenu dziala na kazdy komponent,
+   ktory go czyta, i nie wymaga walki w kaskadzie. */
+.story-template-romantic,
+.story-template-editorial,
+.story-template-midnight {
+  --color-muted-foreground: color-mix(in srgb, var(--story-text) 72%, transparent);
+}
+
+.story-template-midnight {
+  --color-card: color-mix(in srgb, var(--story-background) 82%, white 18%);
+  --color-muted: color-mix(in srgb, var(--story-background) 92%, white 8%);
 }
 
 .story-template-midnight article {

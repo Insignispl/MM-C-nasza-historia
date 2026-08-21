@@ -1,7 +1,9 @@
 "use client";
 
 import { Button } from "@/components/ui/Button";
+import { ThemeController, ThemeSwitch } from "@/components/ThemeController";
 import { createClient } from "@/lib/supabase/client";
+import { buildBoomerang, czekajNaFonty, drawMountedPhoto, type FrameStyle } from "@/lib/photobooth";
 import { Camera, CheckCircle2, Circle, FlipHorizontal2, Loader2, RefreshCw, Send, Video } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -26,20 +28,26 @@ export default function PhotoBoothPage({ params }: { params: Promise<{ slug: str
   const [assetUrl, setAssetUrl] = useState("");
   const [guestName, setGuestName] = useState("");
   const [camera, setCamera] = useState<"user" | "environment">("user");
-  const [frameStyle, setFrameStyle] = useState("classic");
+  const [frameStyle, setFrameStyle] = useState<FrameStyle>("classic");
   const [captureDelay, setCaptureDelay] = useState(3);
   const [burstCount, setBurstCount] = useState(1);
+  const [weddingDate, setWeddingDate] = useState<string | null>(null);
+  const [previewKind, setPreviewKind] = useState<"image" | "video">("image");
   const [error, setError] = useState("");
+
+  const frameOpts = useMemo(() => ({ style: frameStyle, coupleName, eventDate: weddingDate }), [frameStyle, coupleName, weddingDate]);
 
   useEffect(() => {
     params.then(async ({ slug }) => {
-      const { data } = await supabase.from("events").select("id,couple_name,kiosk_enabled,kiosk_countdown_seconds,kiosk_burst_count,kiosk_frame_style").eq("slug", slug).single();
+      const { data } = await supabase.from("events").select("id,couple_name,wedding_date,kiosk_enabled,kiosk_countdown_seconds,kiosk_burst_count,kiosk_frame_style").eq("slug", slug).single();
       if (!data?.kiosk_enabled) { setStatus("unavailable"); return; }
       setEventId(data.id);
       setCoupleName(data.couple_name);
+      setWeddingDate(data.wedding_date);
       setCaptureDelay(data.kiosk_countdown_seconds);
       setBurstCount(data.kiosk_burst_count);
       setFrameStyle(data.kiosk_frame_style);
+      await czekajNaFonty();
       await startCamera("photo", camera);
     });
     return () => stopCamera();
@@ -84,13 +92,12 @@ export default function PhotoBoothPage({ params }: { params: Promise<{ slug: str
     }, 1000);
   }
 
+  /** Kadr z kamery wpisany w oprawe - ramka i podpis sa WYPALONE w plik, nie tylko w widok. */
   function takePhoto() {
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    if (!video || !canvas) return Promise.resolve(null);
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    canvas.getContext("2d")?.drawImage(video, 0, 0);
+    if (!video || !canvas || !video.videoWidth) return Promise.resolve(null);
+    drawMountedPhoto(canvas, video, video.videoWidth, video.videoHeight, frameOpts);
     return new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.92));
   }
 
@@ -101,7 +108,15 @@ export default function PhotoBoothPage({ params }: { params: Promise<{ slug: str
       if (blob) burstRef.current.push(blob);
       if (index < burstCount - 1) await new Promise((resolve) => window.setTimeout(resolve, 450));
     }
-    if (burstRef.current[0]) preview(burstRef.current[0]);
+    if (!burstRef.current[0]) return;
+    // Seria trafia do albumu jako JEDNA zapetlona animacja, a nie kilka niemal identycznych
+    // kadrow - fotograf moderuje jedna pozycje zamiast trzech, a gosc dostaje ciekawsza pamiatke.
+    if (burstRef.current.length > 1) {
+      setStatus("sending");
+      const animacja = await buildBoomerang(burstRef.current).catch(() => null);
+      if (animacja) { preview(animacja, "video"); return; }
+    }
+    preview(burstRef.current[0], "image");
   }
 
   function recordVideo() {
@@ -110,15 +125,16 @@ export default function PhotoBoothPage({ params }: { params: Promise<{ slug: str
     const recorder = new MediaRecorder(streamRef.current, { mimeType: MediaRecorder.isTypeSupported("video/webm;codecs=vp9,opus") ? "video/webm;codecs=vp9,opus" : "video/webm" });
     recorderRef.current = recorder;
     recorder.ondataavailable = (event) => { if (event.data.size) chunksRef.current.push(event.data); };
-    recorder.onstop = () => preview(new Blob(chunksRef.current, { type: "video/webm" }));
+    recorder.onstop = () => preview(new Blob(chunksRef.current, { type: "video/webm" }), "video");
     recorder.start();
     setStatus("recording");
     window.setTimeout(() => recorder.state === "recording" && recorder.stop(), 8000);
   }
 
-  function preview(blob: Blob) {
+  function preview(blob: Blob, kind: "image" | "video") {
     stopCamera();
     setAsset(blob);
+    setPreviewKind(kind);
     setAssetUrl(URL.createObjectURL(blob));
     setStatus("preview");
   }
@@ -126,30 +142,25 @@ export default function PhotoBoothPage({ params }: { params: Promise<{ slug: str
   async function submit() {
     if (!asset || !eventId) return;
     setStatus("sending");
-    const assets = mode === "photo" && burstRef.current.length ? burstRef.current : [asset];
     const timestamp = Date.now();
-    const results = await Promise.all(assets.map(async (item, index) => {
-      const extension = mode === "video" ? "webm" : "jpg";
-      const path = `events/${eventId}/photobooth-${timestamp}-${index + 1}.${extension}`;
-      const file = new File([item], `story-atelier-${timestamp}-${index + 1}.${extension}`, { type: item.type });
-      const { error: uploadError } = await supabase.storage.from("event-media").upload(path, file);
-      if (uploadError) return uploadError;
-      const { data: url } = supabase.storage.from("event-media").getPublicUrl(path);
-      const { error: insertError } = await supabase.from("event_media").insert({ event_id: eventId, type: mode === "video" ? "video" : "image", storage_path: path, public_url: url.publicUrl, guest_name: guestName || "Gość fotobudki", source: "kiosk", approved: false });
-      return insertError;
-    }));
-    const error = results.find(Boolean);
-    if (error) { setError(error.message); setStatus("preview"); return; }
+    const extension = previewKind === "video" ? "webm" : "jpg";
+    const path = `events/${eventId}/photobooth-${timestamp}.${extension}`;
+    const file = new File([asset], `story-atelier-${timestamp}.${extension}`, { type: asset.type });
+    const { error: uploadError } = await supabase.storage.from("event-media").upload(path, file);
+    if (uploadError) { setError(uploadError.message); setStatus("preview"); return; }
+    const { data: url } = supabase.storage.from("event-media").getPublicUrl(path);
+    const { error: insertError } = await supabase.from("event_media").insert({ event_id: eventId, type: previewKind, storage_path: path, public_url: url.publicUrl, guest_name: guestName || "Gość fotobudki", source: "kiosk", approved: false });
+    if (insertError) { setError(insertError.message); setStatus("preview"); return; }
     setStatus("done");
   }
 
   function reset() {
     if (assetUrl) URL.revokeObjectURL(assetUrl);
     burstRef.current = [];
-    setAsset(null); setAssetUrl(""); setGuestName(""); setCountdown(null); setError(""); startCamera(mode, camera);
+    setAsset(null); setAssetUrl(""); setGuestName(""); setCountdown(null); setError(""); setPreviewKind("image"); startCamera(mode, camera);
   }
 
-  if (status === "unavailable") return <main className="flex min-h-screen items-center justify-center bg-[#1b1120] p-6 text-center text-white"><div><h1 className="font-serif text-4xl">Fotobudka jest niedostępna</h1><p className="mt-3 text-white/70">Fotograf nie włączył jeszcze tego trybu.</p></div></main>;
+  if (status === "unavailable") return <main className="flex min-h-screen items-center justify-center bg-background p-6 text-center text-foreground"><ThemeController surface="fotobudka" /><div><h1 className="font-serif text-4xl">Fotobudka jest niedostępna</h1><p className="mt-3 text-muted-foreground">Fotograf nie włączył jeszcze tego trybu.</p></div></main>;
 
-  return <main className="min-h-screen bg-[#1b1120] p-4 text-white sm:p-8"><div className={`mx-auto min-h-[calc(100vh-2rem)] max-w-6xl rounded-[2.5rem] border p-5 shadow-2xl sm:p-10 ${frameStyle === "neon" ? "border-fuchsia-400 shadow-fuchsia-500/30" : frameStyle === "film" ? "border-amber-200/70 bg-[#0b0b0b]" : frameStyle === "minimal" ? "border-white/15 bg-[#141018]" : "border-white/10 bg-gradient-to-br from-[#4b2e56] to-[#18101c]"}`}><header className="text-center"><p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/60">Story Atelier · Fotobudka</p><h1 className="mt-2 font-serif text-4xl sm:text-6xl">{coupleName || "Ładujemy wydarzenie…"}</h1><p className="mt-3 text-white/70">Zatrzymaj tę chwilę. Zdjęcie{burstCount > 1 ? ` × ${burstCount}` : ""} lub 8-sekundowy film.</p></header><div className="mx-auto mt-7 flex max-w-md rounded-2xl bg-black/25 p-1"><button onClick={() => switchMode("photo")} className={`flex-1 rounded-xl px-4 py-3 text-sm font-semibold ${mode === "photo" ? "bg-white text-[#2d1735]" : "text-white/70"}`}><Camera className="mr-2 inline h-4 w-4" /> Zdjęcie</button><button onClick={() => switchMode("video")} className={`flex-1 rounded-xl px-4 py-3 text-sm font-semibold ${mode === "video" ? "bg-white text-[#2d1735]" : "text-white/70"}`}><Video className="mr-2 inline h-4 w-4" /> Wideo</button></div><section className="relative mx-auto mt-7 flex max-w-4xl items-center justify-center overflow-hidden rounded-[2rem] bg-black aspect-video"><video ref={videoRef} autoPlay playsInline muted={mode === "photo"} className={status === "ready" || status === "countdown" || status === "recording" ? "h-full w-full object-cover" : "hidden"} /><canvas ref={canvasRef} className="hidden" />{asset && mode === "photo" && <Image src={assetUrl} alt="Podgląd z fotobudki" fill unoptimized sizes="(max-width: 1200px) 100vw, 80vw" className="object-contain" />}{asset && mode === "photo" && burstRef.current.length > 1 && <span className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/65 px-4 py-2 text-sm font-semibold">Seria {burstRef.current.length} zdjęć</span>}{asset && mode === "video" && <video src={assetUrl} controls autoPlay playsInline className="h-full w-full object-contain" />}{status === "loading" && <Loader2 className="h-10 w-10 animate-spin" />}{countdown !== null && <span className="absolute inset-0 flex items-center justify-center bg-black/30 font-serif text-[9rem] text-white animate-pulse">{countdown}</span>}{status === "recording" && <span className="absolute left-5 top-5 inline-flex items-center gap-2 rounded-full bg-red-500 px-4 py-2 text-sm font-semibold"><Circle className="h-3 w-3 fill-current" /> Nagrywanie</span>}</section>{error && <p className="mx-auto mt-4 max-w-4xl rounded-xl bg-red-500/15 p-3 text-center text-sm text-red-100">{error}</p>}{status === "done" ? <div className="mt-7 text-center"><CheckCircle2 className="mx-auto h-16 w-16 text-emerald-300" /><h2 className="mt-3 font-serif text-3xl">Wspomnienie zapisane!</h2><p className="mt-2 text-white/70">Po akceptacji pojawi się w albumie Pary.</p><Button onClick={reset} className="mt-5"><RefreshCw className="mr-2 h-4 w-4" /> Kolejna chwila</Button></div> : status === "preview" ? <div className="mx-auto mt-6 flex max-w-4xl flex-col gap-3 sm:flex-row"><input value={guestName} onChange={(event) => setGuestName(event.target.value)} placeholder="Twoje imię (opcjonalnie)" className="h-12 flex-1 rounded-xl border border-white/20 bg-white/10 px-4 text-white outline-none placeholder:text-white/50" /><Button onClick={submit} className="h-12 gap-2"><Send className="h-4 w-4" /> Wyślij do albumu</Button><Button onClick={reset} variant="outline" className="h-12 border-white/30 bg-transparent text-white hover:bg-white/10 hover:text-white"><RefreshCw className="h-4 w-4" /></Button></div> : <div className="mt-6 flex justify-center gap-3"><Button onClick={() => runCountdown(mode === "photo" ? capturePhoto : recordVideo)} disabled={status !== "ready"} className="h-14 rounded-full px-8 text-base">{mode === "photo" ? <Camera className="mr-2 h-5 w-5" /> : <Video className="mr-2 h-5 w-5" />}{mode === "photo" ? "Zrób zdjęcie" : "Nagraj 8 sekund"}</Button><Button onClick={flipCamera} variant="outline" className="h-14 w-14 rounded-full border-white/30 bg-transparent p-0 text-white hover:bg-white/10 hover:text-white"><FlipHorizontal2 className="h-5 w-5" /></Button></div>}</div></main>;
+  return <main className="min-h-screen bg-background p-4 text-foreground sm:p-8"><ThemeController surface="fotobudka" /><div className={`frame-${frameStyle} mx-auto min-h-[calc(100vh-2rem)] max-w-6xl rounded-[2.5rem] border border-border p-5 text-foreground shadow-2xl sm:p-10`}><header className="text-center"><p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">Story Atelier · Fotobudka</p><h1 className="mt-2 font-serif text-4xl sm:text-6xl">{coupleName || "Ładujemy wydarzenie…"}</h1><p className="mt-3 text-muted-foreground">Zatrzymaj tę chwilę. Zdjęcie{burstCount > 1 ? ` × ${burstCount}` : ""} lub 8-sekundowy film.</p></header><div className="mx-auto mt-7 flex max-w-md rounded-2xl bg-black/25 p-1"><button onClick={() => switchMode("photo")} className={`flex-1 rounded-xl px-4 py-3 text-sm font-semibold ${mode === "photo" ? "bg-foreground text-background" : "text-muted-foreground"}`}><Camera className="mr-2 inline h-4 w-4" /> Zdjęcie</button><button onClick={() => switchMode("video")} className={`flex-1 rounded-xl px-4 py-3 text-sm font-semibold ${mode === "video" ? "bg-foreground text-background" : "text-muted-foreground"}`}><Video className="mr-2 inline h-4 w-4" /> Wideo</button></div><section className="relative mx-auto mt-7 flex max-w-4xl items-center justify-center overflow-hidden rounded-[2rem] bg-black aspect-video"><video ref={videoRef} autoPlay playsInline muted={mode === "photo"} className={status === "ready" || status === "countdown" || status === "recording" ? "h-full w-full object-cover" : "hidden"} /><canvas ref={canvasRef} className="hidden" />{asset && previewKind === "image" && <Image src={assetUrl} alt="Podgląd z fotobudki" fill unoptimized sizes="(max-width: 1200px) 100vw, 80vw" className="object-contain" />}{asset && previewKind === "video" && mode === "photo" && <span className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/65 px-4 py-2 text-sm font-semibold">Animacja z {burstRef.current.length} kadrów</span>}{asset && previewKind === "video" && <video src={assetUrl} controls={mode === "video"} autoPlay loop playsInline muted={mode === "photo"} className="h-full w-full object-contain" />}{(status === "loading" || status === "sending") && <Loader2 className="h-10 w-10 animate-spin" />}{countdown !== null && <span className="absolute inset-0 flex items-center justify-center bg-black/30 font-serif text-[9rem] text-white animate-pulse">{countdown}</span>}{status === "recording" && <span className="absolute left-5 top-5 inline-flex items-center gap-2 rounded-full bg-red-500 px-4 py-2 text-sm font-semibold"><Circle className="h-3 w-3 fill-current" /> Nagrywanie</span>}</section>{error && <p className="mx-auto mt-4 max-w-4xl rounded-xl bg-red-500/15 p-3 text-center text-sm text-red-100">{error}</p>}{status === "done" ? <div className="mt-7 text-center"><CheckCircle2 className="mx-auto h-16 w-16 text-emerald-300" /><h2 className="mt-3 font-serif text-3xl">Wspomnienie zapisane!</h2><p className="mt-2 text-muted-foreground">Po akceptacji pojawi się w albumie Pary.</p><Button onClick={reset} className="mt-5"><RefreshCw className="mr-2 h-4 w-4" /> Kolejna chwila</Button></div> : status === "preview" ? <div className="mx-auto mt-6 flex max-w-4xl flex-col gap-3 sm:flex-row"><input value={guestName} onChange={(event) => setGuestName(event.target.value)} placeholder="Twoje imię (opcjonalnie)" className="h-12 flex-1 rounded-xl border border-input bg-muted px-4 text-foreground outline-none placeholder:text-muted-foreground" /><Button onClick={submit} className="h-12 gap-2"><Send className="h-4 w-4" /> Wyślij do albumu</Button><Button onClick={reset} variant="outline" className="h-12 border-border bg-transparent text-foreground hover:bg-muted hover:text-foreground"><RefreshCw className="h-4 w-4" /></Button></div> : <div className="mt-6 flex justify-center gap-3"><Button onClick={() => runCountdown(mode === "photo" ? capturePhoto : recordVideo)} disabled={status !== "ready"} className="h-14 rounded-full px-8 text-base">{mode === "photo" ? <Camera className="mr-2 h-5 w-5" /> : <Video className="mr-2 h-5 w-5" />}{mode === "photo" ? "Zrób zdjęcie" : "Nagraj 8 sekund"}</Button><Button onClick={flipCamera} variant="outline" className="h-14 w-14 rounded-full border-border bg-transparent p-0 text-foreground hover:bg-muted hover:text-foreground"><FlipHorizontal2 className="h-5 w-5" /></Button></div>}<div className="mt-8 flex justify-center opacity-50 transition hover:opacity-100 focus-within:opacity-100"><ThemeSwitch /></div></div></main>;
 }
