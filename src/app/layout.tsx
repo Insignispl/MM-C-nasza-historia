@@ -40,6 +40,9 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  // Bez metadataBase wszystkie adresy relatywne (canonical, obrazy og) Next
+  // rozwiazuje wzgledem localhost, wiec na produkcji trafialyby w nikad.
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000"),
   title: { default: "Story Atelier | Fotografia, film i studio nagrań. Wrocław i Polkowice", template: "%s | Story Atelier" },
   description: "Reportaż ślubny, film z gimbala i drona, wideo na zamówienie oraz wynajem studia nagraniowego we Wrocławiu. Dwa biura: Wrocław i Polkowice.",
   keywords: ["fotograf ślubny Wrocław", "fotograf Polkowice", "film ślubny", "studio nagraniowe Wrocław", "wynajem studia podcast", "wideo na zamówienie", "dron", "kamerzysta na wesele"],

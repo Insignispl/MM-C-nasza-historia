@@ -84,6 +84,12 @@ wklejaj ich ponownie w SQL Editorze — stan sprawdzaj w historii migracji Supab
 Ostatnie: **019** modernizuje presety wyglądu stron wydarzeń, **020** dodaje tabelę
 `inquiries` na zapytania z formularza. Bez 020 formularz zwróci błąd zapisu.
 
+> **021 czeka na wgranie i jest pilna.** Robi dwie rzeczy. Usuwa z bazy nazwisko
+> realnego klienta, które migracja 001 zapisała jako domyślną wartość kolumny
+> `couple_name` i które strona albumu wyświetla. Oraz usuwa myślniki em z treści
+> widocznej na stronie: tytuły realizacji i podpisy pod zdjęciami idą z bazy, więc
+> poprawienie samego kodu ich nie zmieniło.
+
 ## Wdrożenie
 
 ```bash
@@ -109,6 +115,9 @@ Supabase — samo otwarcie go wybudza.
 - [ ] Potwierdzić dni tygodnia dla godzin 9–17 w `src/lib/seo.ts`
 - [ ] Uzupełnić `sameAs` w `src/lib/seo.ts`, gdy powstaną profile w social mediach
 - [ ] Usunąć wiersze testowe z tabeli `inquiries`
+- [ ] Wgrać migrację **021** (nazwisko klienta w bazie oraz myślniki w treści)
+- [ ] Zdecydować, co ze starą trasą `/e/[slug]/kiosk`. Dubluje fotobudkę i ma
+      kolory na sztywno, poza systemem tokenów
 
 ## Więcej
 

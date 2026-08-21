@@ -207,3 +207,45 @@ Automatyczna zamiana tekstu potrafi trafić w coś innego, niż zamierzasz, i **
 Zdarzyło się już, że globalna podmiana uszkodziła wielkie litery w trzech plikach
 (`Promise` → `rromise`) i wykrył to dopiero kompilator, nie wzrok. Pomocny jest też skan
 wzorcem `\b([a-z])\1[a-z]{3,}` — podwojona pierwsza litera to sygnatura takiego błędu.
+
+### Widoczny tekst czesto lezy w bazie, nie w kodzie
+
+Tytuly realizacji, podpisy pod zdjeciami i nazwy rozdzialow pochodza z tabel. Polecenie
+„usun myslniki z tekstu" wykonane na plikach zrodlowych **nie zmienia tego, co widzi
+czlowiek**, bo te zdania nigdy nie byly w kodzie. Sprawdzaj w serwowanej stronie, potem
+szukaj zrodla zdania, a nie odwrotnie.
+
+### Bez `metadataBase` adresy wzgledne wskazuja na localhost
+
+`alternates.canonical` i obrazy Open Graph podane wzglednie Next rozwiazuje wzgledem
+`metadataBase`. Gdy go nie ma, wpisuje `http://localhost:3000` i cala praca nad
+pozycjonowaniem trafia w nikad, nie zglaszajac bledu.
+
+### Szablon tytulu dokleja marke sam
+
+Layout ma `title.template = "%s | Story Atelier"`. Tytul strony, ktory sam konczy sie
+nazwa firmy, daje „... Story Atelier | Story Atelier" i przekracza dlugosc pokazywana
+w wyniku wyszukiwania. Nazwa firmy nalezy do szablonu, nie do stron.
+
+### `captureStream()` z plotna nie ma dzwieku
+
+Nagranie z `canvas.captureStream()` to sam obraz. Zeby film z fotobudki mial dzwiek,
+trzeba dolozyc sciezke audio ze strumienia kamery przez `addTrack`. Bez tego osiem
+sekund zyczen wychodzi w idealnej oprawie i w calkowitej ciszy.
+
+Przy okazji: podglad kamery na zywo musi byc **zawsze** `muted`. Glosnik odtwarzajacy
+to, co slyszy mikrofon, daje sprzezenie akustyczne przez caly czas nagrywania.
+
+### `fetch` nie raportuje postepu wysylania
+
+`supabase.storage.upload()` stoi na `fetch`, ktory nie ma zdarzen postepu dla ciala
+zadania. Licznik procentow wymaga `XMLHttpRequest` i `upload.onprogress`. Zadanie musi
+miec **taki sam ksztalt**, jaki sklada biblioteka: `FormData` z polem `cacheControl`
+i plikiem pod pusta nazwa.
+
+### Brak wpisu w sitemapie to cichy brak
+
+Sitemap pobierajacy dane z bazy przy blednej nazwie kolumny nie rzuca wyjatku: Supabase
+odrzuca caly `select`, wynik jest `null`, a plik wychodzi krotszy. Wyglada dokladnie tak,
+jak „nie ma jeszcze realizacji". Kolumny sprawdzaj w migracjach, a gotowy sitemap czytaj
+z serwera.

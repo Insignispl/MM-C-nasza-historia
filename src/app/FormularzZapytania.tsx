@@ -92,9 +92,12 @@ export function FormularzZapytania() {
           formularz przestaje konkurować o uwagę z resztą strony, a na telefonie nie trzeba
           przewijać przez pół serwisu, żeby wrócić do pierwszego pola. */}
       <Dialog open={sciezka !== null} onOpenChange={(otwarte) => { if (!otwarte) zamknij(); }}>
-        <DialogContent className="inset-0 left-0 top-0 h-full max-h-none w-full max-w-none translate-x-0 translate-y-0 rounded-none p-0">
+        <DialogContent className="surface-paper inset-0 left-0 top-0 h-full max-h-none w-full max-w-none translate-x-0 translate-y-0 rounded-none p-0">
+          {/* Formularz na JASNEJ powierzchni, mimo ze sekcja wokol jest ciemna.
+              Wypelnianie pol to praca, a nie ogladanie - na bieli pola i etykiety
+              czyta sie latwiej niz na czerni, zwlaszcza na telefonie w sloncu. */}
           {sciezka && (
-            <div className="surface-studio min-h-full">
+            <div className="min-h-full bg-background">
               <div className="mx-auto max-w-4xl px-6 py-24 sm:px-10">
                 {gotowe ? (
                   <div className="text-center">

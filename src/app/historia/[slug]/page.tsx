@@ -1,15 +1,57 @@
 import { createClient } from "@/lib/supabase/server";
+import { LOKALIZACJE } from "@/lib/oferta";
+import type { Metadata } from "next";
+import { cache } from "react";
 import { ArrowLeft, Play, Sparkles } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { StoryActions } from "./StoryActions";
 
+// generateMetadata i sama strona pytaja o to samo wydarzenie. cache() z Reacta
+// sprawia, ze w obrebie jednego zadania leci JEDNO zapytanie do bazy, a nie dwa.
+const pobierzRealizacje = cache(async (slug: string) => {
+  const supabase = await createClient();
+  const { data } = await supabase.from("events").select("id,portfolio_title,portfolio_description,primary_color,secondary_color,event_type,story_template,story_background_color,story_gradient_from,story_gradient_to,story_text_color").eq("slug", slug).eq("is_portfolio", true).eq("status", "live").single();
+  return data;
+});
+
+// Bez tego kazda realizacja dziedziczyla tytul z layoutu, czyli caly portfolio
+// mial w wynikach jeden i ten sam naglowek. Zduplikowane tytuly to dla wyszukiwarki
+// sygnal, ze te strony nie wnosza nic nowego.
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const event = await pobierzRealizacje(slug);
+  if (!event) return { title: "Nie znaleźliśmy tej realizacji" };
+
+  const supabase = await createClient();
+  const { data: okladka } = await supabase.from("event_media").select("public_url").eq("event_id", event.id).eq("approved", true).eq("type", "image").order("featured", { ascending: false }).order("created_at", { ascending: false }).limit(1).maybeSingle();
+
+  const tytul = event.portfolio_title || "Historia jednego dnia";
+  const rodzaj = event.event_type === "wedding" ? "Reportaż ślubny" : "Realizacja";
+  const miasta = LOKALIZACJE.map((lokalizacja) => lokalizacja.miasto).join(" i ");
+  const opis = event.portfolio_description || `${rodzaj} Story Atelier. Fotografia i film z ${miasta}.`;
+
+  return {
+    // Bez nazwy firmy: template z layoutu ("%s | Story Atelier") dokleja ja sam.
+    title: `${tytul} · ${rodzaj}`,
+    description: opis.slice(0, 155),
+    alternates: { canonical: `/historia/${slug}` },
+    openGraph: {
+      title: tytul,
+      description: opis,
+      type: "article",
+      url: `/historia/${slug}`,
+      images: okladka?.public_url ? [{ url: okladka.public_url }] : undefined,
+    },
+  };
+}
+
 export default async function PortfolioStoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const supabase = await createClient();
-  const { data: event } = await supabase.from("events").select("id,portfolio_title,portfolio_description,primary_color,secondary_color,event_type,story_template,story_background_color,story_gradient_from,story_gradient_to,story_text_color").eq("slug", slug).eq("is_portfolio", true).eq("status", "live").single();
+  const event = await pobierzRealizacje(slug);
   if (!event) notFound();
+  const supabase = await createClient();
   const [{ data: chapters }, { data: media }] = await Promise.all([
     supabase.from("event_story_chapters").select("id,title,subtitle,sort_order").eq("event_id", event.id).order("sort_order"),
     supabase.from("event_media").select("id,chapter_id,type,public_url,caption,created_at").eq("event_id", event.id).eq("approved", true).order("created_at"),

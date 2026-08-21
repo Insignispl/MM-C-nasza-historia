@@ -1,4 +1,4 @@
--- Album ślubny — Maria i Michał Czujko
+-- Schemat albumu weselnego
 -- Inicjalizacja schematu bazy danych Supabase
 
 -- Extensions
@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS public.wedding_settings (
   groom_name text NOT NULL DEFAULT 'Michał',
   bride_name text NOT NULL DEFAULT 'Maria',
   bride_maiden_name text,
-  couple_name text NOT NULL DEFAULT 'Maria i Michał Czujko',
+  couple_name text NOT NULL DEFAULT 'Para Młoda',
   wedding_date date NOT NULL DEFAULT '2026-06-27',
   location text NOT NULL DEFAULT 'Polkowice',
   story_text text,
