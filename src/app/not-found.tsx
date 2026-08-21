@@ -13,7 +13,7 @@ export default function NotFoundPage() {
         Tej strony tu nie ma.
       </h1>
       <p className="mt-6 max-w-md leading-7 text-muted-foreground">
-        Adres mógł się zmienić albo zawiera literówkę. Zajrzyj na stronę główną — usługi, realizacje i studio są tam.
+        Adres mógł się zmienić albo zawiera literówkę. Na stronie głównej znajdziesz usługi, realizacje i studio.
       </p>
       <div className="mt-10 flex flex-wrap justify-center gap-3">
         <Link href="/"><Button size="lg">Strona główna</Button></Link>

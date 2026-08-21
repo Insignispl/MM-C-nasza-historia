@@ -3,6 +3,7 @@
 @theme inline {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-logo: var(--font-greatvibes), "Segoe Script", cursive;
 }
 
 /* Wedrujacy odcien akcentu.
@@ -42,6 +43,7 @@ html {
 :root {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-logo: var(--font-greatvibes), "Segoe Script", cursive;
   --radius: 0.5rem;
   --background: 0 0% 100%;
   --foreground: 240 10% 4%;
@@ -202,19 +204,29 @@ body {
      wynosila okolo 50 stopni: caly napis jest w JEDNYM kolorze, ktory powoli
      przechodzi w nastepny, a fala jest tylko sladem.
 
-     Dwa poziomy nasycenia (decyzja wlasciciela): oba MOCNO nasycone, ale akcent
-     pelna saturacja. To utrzymuje hierarchie - wzrok trafia najpierw w "studio nagran".
+     JEDEN poziom nasycenia dla obu wierszy (decyzja wlasciciela - wersja z cichsza
+     baza i mocniejszym akcentem zostala odrzucona jako niespojna).
      Najslabszy odcien cyklu przy 100%/62% to glebki blekit (254 stopnie): ZMIERZONE
      3,43:1 na tle studia. Prog WCAG dla duzego tekstu to 3:1, naglowek ma 5rem.
      Nie schodz z jasnoscia ponizej 60%, bo blekit wypadnie pod prog. */
   .litera {
     animation: akcent-wedrowka 12s linear infinite;
-    color: hsl(var(--akcent-h) 85% 78%);
+    /* Zapas dla starych przegladarek i ekranow bez szerokiego gamutu. */
+    color: hsl(var(--akcent-h) 100% 62%);
     transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
-  .text-accent .litera {
-    color: hsl(var(--akcent-h) 100% 62%);
+  /* Poza sRGB. Chroma 0.21 przekracza granice sRGB dla wiekszosci odcieni, wiec na
+     ekranie Display-P3 przegladarka rysuje barwe, ktorej stary model NIE POTRAFI
+     opisac; na wezszym ekranie sama przycina do gamutu i nic sie nie psuje.
+     Wazniejszy efekt uboczny: OKLCH trzyma ODCZUWANA jasnosc stala przy zmianie
+     odcienia. W HSL blekit przy L=62% wygladal wyraznie ciemniej niz zolty przy tej
+     samej liczbie i to on byl najslabszym punktem cyklu (3,43:1). Tutaj wszystkie
+     odcienie maja realnie te sama jasnosc, wiec kontrast nie zalezy od fazy. */
+  @supports (color: oklch(0.7 0.2 100)) {
+    .litera {
+      color: oklch(0.78 0.21 var(--akcent-h));
+    }
   }
 
   @media (hover: hover) {
@@ -274,6 +286,84 @@ body {
   .film-edge {
     height: 2.25rem;
     background: repeating-linear-gradient(90deg, var(--color-border) 0 14px, transparent 14px 34px) center / 100% 8px no-repeat;
+  }
+
+  /* Siatka pol formularza.
+
+     PROBLEM: kazde pole ma etykiete, opcjonalna podpowiedz i kontrolke. Gdy pole
+     jest wlasna siatka, kontrolka startuje tam, gdzie skonczy sie JEGO etykieta -
+     wiec pole z podpowiedzia i pole bez niej maja kontrolki na roznych wysokosciach
+     i caly rzad wyglada na przekrzywiony.
+
+     ROZWIAZANIE: `subgrid`. Pole nie tworzy wlasnych pasow, tylko dziedziczy trzy
+     pasy wiersza od rodzica (etykieta / podpowiedz / kontrolka), wiec wszystkie
+     kontrolki w rzedzie leza w tym samym pasie. */
+  .pola {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: auto;
+    gap: 1.75rem 2rem;
+  }
+
+  .pole {
+    display: grid;
+    grid-row: span 3;
+    grid-template-rows: subgrid;
+    align-content: start;
+  }
+
+  /* Zapas dla przegladarek bez subgrid: staly minimalny obszar na etykiete
+     z podpowiedzia. Mniej elegancko, ale kontrolki nadal sie wyrownuja. */
+  @supports not (grid-template-rows: subgrid) {
+    .pole {
+      grid-row: auto;
+      grid-template-rows: none;
+    }
+    .pole > .pole-naglowek {
+      min-height: 3.75rem;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .pola {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  /* Karta obracana o 180 stopni.
+
+     `focus-within` obok `hover` jest tu konieczne, nie ozdobne: bez niego karta jest
+     nieosiagalna z klawiatury i nieosiagalna na ekranie dotykowym, bo tam hover
+     nie istnieje. Tapniecie nadaje fokus, wiec ten sam selektor obsluguje dotyk.
+
+     `backface-visibility: hidden` na obu scianach sprawia, ze tylna nie przebija
+     przez przednia w polowie obrotu. Bez tego widac tekst odbity lustrzanie. */
+  .flip {
+    perspective: 1400px;
+  }
+
+  .flip-inner {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    transform-style: preserve-3d;
+    transition: transform 700ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .flip:hover .flip-inner,
+  .flip:focus-within .flip-inner {
+    transform: rotateY(180deg);
+  }
+
+  .flip-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  .flip-back {
+    transform: rotateY(180deg);
   }
 
   /* Znaczniki kadrowania z celownika aparatu. Jedyna ozdoba, na ktora sobie

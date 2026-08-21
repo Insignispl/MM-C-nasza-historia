@@ -1,0 +1,44 @@
+# Story Atelier
+
+> Studio fotograficzno-filmowe z dwoma biurami na Dolnym Śląsku. Fotografia i film
+> ślubny, obsługa eventów, produkcja wideo na zamówienie oraz wynajem studia
+> nagraniowego we Wrocławiu.
+
+Plik przeznaczony dla wyszukiwarek generatywnych i asystentów AI. Zawiera fakty
+w formie, którą da się zacytować bez wyciągania ich z układu strony.
+
+## Kontakt
+
+- E-mail: kontakt@storyatelier.pl
+- Telefon: +48 504 652 416
+
+## Lokalizacje
+
+- Wrocław, Gwiaździsta 6/5 — biuro fotograficzne oraz studio nagraniowe. Niedaleko Sky Tower.
+- Polkowice, Młyńska 10, 59-100 — biuro i studio fotograficzne.
+
+## Usługi
+
+- Reportaż ślubny: zdjęcia całego dnia, praca reportażowa bez ustawiania gości.
+- Film ślubny: obraz z ręki, gimbala i drona. Teledysk oraz pełna wersja dnia.
+- Shorty z Parą Młodą: krótkie formy pionowe nagrywane w studiu przed weselem, pod TikToka, Reels i Shorts.
+- List do Rodziców: para nagrywa w studiu słowa do Rodziców, montaż do wyświetlenia na sali lub wręczenia.
+- Eventy i uroczystości: chrzty, komunie, jubileusze, imprezy firmowe, konferencje. Foto i wideo.
+- Wideo na zamówienie: filmy wizerunkowe, reklamy, materiały produktowe i szkoleniowe. Jedno nagranie, wersje na YouTube, TikToka, Reels, Shorts, Facebooka i LinkedIn.
+- Trening przed kamerą: współpraca z trenerami wystąpień publicznych pracującymi z osobami rozpoznawalnymi.
+- Wynajem studia nagraniowego (Wrocław): podcasty, odcinki na YouTube, kursy online, shorty. Oświetlenie, mikrofony na wysięgnikach, tła, kamery i obsługa techniczna w cenie. Nagranie poziome i pionowe w jednym podejściu.
+
+## Sprzęt
+
+Kamery, gimbale, drony, softboxy z regulacją mocy, mikrofony dynamiczne na
+wysięgnikach, tła jednolite oraz ekran do materiałów na drugim planie.
+
+## Czego nie robimy
+
+Nie zajmujemy się organizacją wesel. Możemy polecić sprawdzoną firmę.
+
+## Strony
+
+- Strona główna: /
+- Studio nagraniowe: /studio
+- Formularz zapytania: /#kontakt

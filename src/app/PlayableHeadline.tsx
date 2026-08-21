@@ -126,7 +126,7 @@ export function PlayableHeadline({ wiersze, className = "" }: { wiersze: Wiersz[
         className="mt-6 inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground transition hover:border-accent hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
       >
         <span className={`h-1.5 w-1.5 rounded-full ${dzwiek ? "bg-accent" : "bg-muted-foreground"}`} />
-        {dzwiek ? "Dźwięk włączony — zagraj nagłówkiem" : "Włącz dźwięk"}
+        {dzwiek ? "Dźwięk włączony, zagraj nagłówkiem" : "Włącz dźwięk"}
       </button>
     </>
   );

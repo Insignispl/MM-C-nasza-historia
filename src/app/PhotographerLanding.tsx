@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/Button";
 import { createClient } from "@/lib/supabase/server";
 import { KONTAKT, LOKALIZACJE } from "@/lib/oferta";
+import { FlipHero } from "./FlipHero";
+import { FormularzZapytania } from "./FormularzZapytania";
 import { PlayableHeadline } from "./PlayableHeadline";
 import { UslugiSekcja } from "./UslugiSekcja";
 import { ArrowUpRight, MapPin } from "lucide-react";
@@ -11,7 +13,7 @@ export async function PhotographerLanding() {
   const supabase = await createClient();
   const { data: events } = await supabase.from("events").select("id,slug,couple_name,wedding_date,location,portfolio_title,portfolio_description,event_type").eq("is_portfolio", true).eq("status", "live").order("wedding_date", { ascending: false });
   const ids = events?.map((event) => event.id) || [];
-  const { data: media } = ids.length ? await supabase.from("event_media").select("event_id,public_url,type,created_at").in("event_id", ids).eq("approved", true).eq("type", "image").order("created_at") : { data: [] };
+  const { data: media } = ids.length ? await supabase.from("event_media").select("event_id,public_url,type,created_at,featured").in("event_id", ids).eq("approved", true).eq("type", "image").order("featured", { ascending: false }).order("created_at", { ascending: false }) : { data: [] };
   const coverByEvent = new Map<string, string>();
   media?.forEach((item) => { if (!coverByEvent.has(item.event_id)) coverByEvent.set(item.event_id, item.public_url); });
   const okladka = [...coverByEvent.values()][0];
@@ -43,9 +45,7 @@ export async function PhotographerLanding() {
             <Link href="/studio"><Button size="lg" variant="outline" className="gap-2">Wynajmij studio</Button></Link>
           </div>
         </div>
-        <div className="viewfinder relative aspect-[4/5] overflow-hidden rounded-lg bg-muted">
-          {okladka && <Image src={okladka} alt="Realizacja Story Atelier" fill className="object-cover" priority sizes="(max-width: 1024px) 100vw, 40vw" />}
-        </div>
+        <FlipHero okladka={okladka} />
       </div>
       <div className="film-edge mx-auto mt-24 max-w-6xl" />
     </section>
@@ -59,7 +59,7 @@ export async function PhotographerLanding() {
           <h2 className="mt-6 text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">Nagraj tu swój pierwszy odcinek.</h2>
           <p className="mt-6 max-w-lg leading-7 text-muted-foreground">
             Oświetlenie, mikrofony na wysięgnikach, tła i obsługa techniczna. Przychodzisz z tematem, wychodzisz
-            z gotowym materiałem — bez kupowania sprzętu na start.
+            z gotowym materiałem, bez kupowania sprzętu na start.
           </p>
           <Link href="/studio"><Button size="lg" className="mt-9 gap-2">Sprawdź studio <ArrowUpRight className="h-4 w-4" /></Button></Link>
         </div>
@@ -105,7 +105,20 @@ export async function PhotographerLanding() {
 
     <section id="kontakt" className="surface-studio px-4 py-24">
       <div className="mx-auto max-w-6xl">
-        <h2 className="text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">Napisz albo zadzwoń</h2>
+        <div className="max-w-2xl">
+          <h2 className="text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">Złóż zapytanie</h2>
+          <p className="mt-6 leading-7 text-muted-foreground">
+            Kilka pytań zamiast pustego pola &bdquo;wiadomo&#347;&#263;&rdquo; &mdash; dzięki nim od razu wiemy, o czym rozmawiamy,
+            i pierwsza odpowiedź jest konkretna, a nie prośbą o szczegóły.
+          </p>
+        </div>
+        {/* Formularz dostaje wlasna karte. Bez obudowy wisial na ciemnym tle jak luzny
+            tekst i po prostu nie byl zauwazalny - a to najwazniejszy element tej sekcji. */}
+        <div className="mt-12 rounded-[var(--radius)] border border-border bg-card p-6 shadow-2xl sm:p-10">
+          <FormularzZapytania />
+        </div>
+        <div className="film-edge my-14" />
+        <h3 className="text-2xl font-semibold tracking-[-0.02em]">Albo napisz i zadzwoń</h3>
         <div className="mt-12 grid gap-10 sm:grid-cols-2">
           <a href={`mailto:${KONTAKT.email}`} className="group block">
             <span className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">E-mail</span>

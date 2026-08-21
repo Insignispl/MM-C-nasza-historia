@@ -2,7 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { Bricolage_Grotesque, Inter } from "next/font/google";
+import { Bricolage_Grotesque, Great_Vibes, Inter } from "next/font/google";
+import { danePolStrukturalne } from "@/lib/seo";
 import { THEME_BOOTSTRAP_SCRIPT } from "@/lib/theme";
 
 // latin-ext jest KONIECZNY: polskie ł ą ę ś ż ź ć ń nie wystepuja w podzbiorze latin,
@@ -19,6 +20,16 @@ const bricolage = Bricolage_Grotesque({
   variable: "--font-bricolage",
 });
 
+// Krój logotypu, dobrany do kaligrafii wymalowanej na ścianie studia.
+// Wyłącznie do nazwy marki - skrypty w małych stopniach i w dłuższym tekście
+// stają się nieczytelne, więc interfejs zostaje na groteskach.
+const greatVibes = Great_Vibes({
+  subsets: ["latin", "latin-ext"],
+  display: "swap",
+  weight: "400",
+  variable: "--font-greatvibes",
+});
+
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
@@ -29,7 +40,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: { default: "Story Atelier | Fotografia, film i studio nagrań — Wrocław i Polkowice", template: "%s | Story Atelier" },
+  title: { default: "Story Atelier | Fotografia, film i studio nagrań. Wrocław i Polkowice", template: "%s | Story Atelier" },
   description: "Reportaż ślubny, film z gimbala i drona, wideo na zamówienie oraz wynajem studia nagraniowego we Wrocławiu. Dwa biura: Wrocław i Polkowice.",
   keywords: ["fotograf ślubny Wrocław", "fotograf Polkowice", "film ślubny", "studio nagraniowe Wrocław", "wynajem studia podcast", "wideo na zamówienie", "dron", "kamerzysta na wesele"],
   authors: [{ name: "Story Atelier" }],
@@ -43,19 +54,15 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "ProfessionalService",
-    name: "Story Atelier",
-    description: "Fotografia reporterska i Event Story.",
-    areaServed: "Polska",
-  };
+  // Dane strukturalne budowane z jednego zrodla (oferta.ts), zeby adresy i telefon
+  // w schema.org nie rozjechaly sie z tym, co widzi czlowiek na stronie.
+  const jsonLd = danePolStrukturalne(process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000");
 
   return (
     // suppressHydrationWarning dotyczy WYLACZNIE tego elementu i jego atrybutow:
     // skrypt w <head> dopisuje data-theme przed hydratacja, wiec serwer i klient
     // z definicji sie tu roznia. Nie tlumi to rozjazdow w tresci strony.
-    <html lang="pl" suppressHydrationWarning className={`${inter.variable} ${bricolage.variable}`}>
+    <html lang="pl" suppressHydrationWarning className={`${inter.variable} ${bricolage.variable} ${greatVibes.variable}`}>
       <head>
         {/* Musi byc pierwszy i synchroniczny: ustawia motyw przed pierwszym malowaniem,
             inaczej na projektorze w zaciemnionej sali widac blysk bialego tla. */}

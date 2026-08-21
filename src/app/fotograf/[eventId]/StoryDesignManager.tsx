@@ -12,7 +12,7 @@ const presets: { id: Template; name: string; description: string; icon: typeof S
   // Kolory muszą zgadzać się z migracją 019 — tam siedzą te same wartości jako
   // domyślne kolumn, więc rozjazd dałby inny wygląd nowemu i zmienionemu wydarzeniu.
   { id: "romantic", name: "Clean", description: "Jasna i chłodna. Zdjęcia są jedynym kolorem na stronie.", icon: Sparkles, colors: { story_background_color: "#fbfbfa", story_gradient_from: "#e7e9ec", story_gradient_to: "#dcd8d2", story_text_color: "#101013" } },
-  { id: "editorial", name: "Paper", description: "Ciepły papier z szampańską poświatą — ta sama rodzina co akcent marki.", icon: CircleDotDashed, colors: { story_background_color: "#f5f2ec", story_gradient_from: "#f0e4c9", story_gradient_to: "#dedad2", story_text_color: "#16130f" } },
+  { id: "editorial", name: "Paper", description: "Ciepły papier z szampańską poświatą, ta sama rodzina co akcent marki.", icon: CircleDotDashed, colors: { story_background_color: "#f5f2ec", story_gradient_from: "#f0e4c9", story_gradient_to: "#dedad2", story_text_color: "#16130f" } },
   { id: "midnight", name: "Cinema", description: "Głęboka czerń bez fioletu. Kadry świecą, tło znika.", icon: MoonStar, colors: { story_background_color: "#0d0d10", story_gradient_from: "#2a2a33", story_gradient_to: "#3a2f18", story_text_color: "#f5f4f2" } },
 ];
 

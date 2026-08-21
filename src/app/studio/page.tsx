@@ -12,10 +12,10 @@ export const metadata: Metadata = {
 
 const WYPOSAZENIE = [
   ["Oświetlenie", "Softboxy z regulacją mocy, światło ustawione pod obraz, a nie pod oko."],
-  ["Dźwięk", "Mikrofony dynamiczne na wysięgnikach — czysty głos bez pogłosu pomieszczenia."],
+  ["Dźwięk", "Mikrofony dynamiczne na wysięgnikach. Czysty głos, bez pogłosu pomieszczenia."],
   ["Obraz", "Kamery, gimbale i drony. Nagrywamy poziomo i pionowo w jednym podejściu."],
   ["Tła", "Tło jednolite oraz ekran do prezentacji i materiałów na drugim planie."],
-  ["Obsługa", "Ktoś, kto ustawi kadr i poziomy — nie zostajesz sam ze sprzętem."],
+  ["Obsługa", "Ktoś, kto ustawi kadr i poziomy. Nie zostajesz sam ze sprzętem."],
   ["Montaż", "Opcjonalnie: cięcie, korekta dźwięku i eksport pod konkretną platformę."],
 ];
 
@@ -23,7 +23,7 @@ const DLA_KOGO = [
   ["Pierwszy podcast", "Masz temat i gościa, nie masz sprzętu ani akustyki. Przychodzisz i nagrywasz."],
   ["Kanał na YouTube", "Regularne odcinki bez budowania studia w mieszkaniu."],
   ["Kurs online", "Materiał do sprzedaży, nagrany raz i porządnie."],
-  ["Shorty i Reels", "Format pionowy nagrywany od razu w docelowych proporcjach."],
+  ["Shorty i Reels", "Format pionowy nagrywany od razu w docelowych proporcjach, pod TikToka, Reels i Shorts."],
 ];
 
 export default function StudioPage() {

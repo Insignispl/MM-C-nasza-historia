@@ -8,7 +8,7 @@ export function Footer() {
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 md:flex-row">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Aperture className="h-4 w-4 text-foreground" />
-          <span>Story Atelier · Fotografia, film i studio nagrań · {LOKALIZACJE.map((l) => l.miasto).join(" i ")}</span>
+          <span><span className="font-logo text-xl leading-none">Story Atelier</span> · Fotografia, film i studio nagrań · {LOKALIZACJE.map((l) => l.miasto).join(" i ")}</span>
         </div>
         <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
           <Link href="/#uslugi" className="hover:text-foreground">Usługi</Link>
