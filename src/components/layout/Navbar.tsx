@@ -9,6 +9,7 @@ import { useState } from "react";
 const links = [
   { href: "/#uslugi", label: "Usługi", icon: Sparkles },
   { href: "/studio", label: "Studio nagrań", icon: Mic },
+  { href: "/#fotobudka", label: "Fotobudka", icon: Aperture },
   { href: "/#realizacje", label: "Realizacje", icon: Camera },
   { href: "/#kontakt", label: "Kontakt", icon: MapPin },
 ];

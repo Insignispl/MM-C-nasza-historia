@@ -15,6 +15,7 @@ export function Footer() {
           <Link href="/studio" className="hover:text-foreground">Studio nagrań</Link>
           <Link href="/#realizacje" className="hover:text-foreground">Realizacje</Link>
           <Link href="/#kontakt" className="hover:text-foreground">Kontakt</Link>
+          <Link href="/prywatnosc" className="hover:text-foreground">Prywatność</Link>
           <Link href="/fotograf" className="hover:text-foreground">Panel</Link>
         </div>
       </div>

@@ -157,8 +157,7 @@ export const LOKALIZACJE: Lokalizacja[] = [
     adres: "Gwiaździsta 6/5, Wrocław",
     opis: "Biuro fotograficzne i studio nagraniowe. Niedaleko Sky Tower.",
     ulica: "Gwiaździsta 6/5",
-    // Kod pocztowy do uzupełnienia. Świadomie pusty: zmyślony kod w danych
-    // strukturalnych szkodzi wynikom lokalnym bardziej niż jego brak.
+    kod: "53-413",
     studioNagran: true,
   },
   {

@@ -79,6 +79,51 @@ export async function PhotographerLanding() {
       </div>
     </section>
 
+    {/* Fotobudka: sekcja wyjasniajaca z odnosnikiem do zywego demo, a NIE kamera
+        wlaczana na stronie glownej. Prosba o dostep do kamery przy pierwszej wizycie
+        odstrasza czesc ludzi, a to strona, ktora ma sprzedawac. Kto chce, kliknie. */}
+    <section id="fotobudka" className="surface-paper px-4 py-24">
+      <div className="mx-auto max-w-6xl">
+        <div className="film-edge mb-16" />
+        <div className="max-w-2xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-accent">Fotobudka na przyjęciu</p>
+          <h2 className="mt-6 text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">
+            Goście robią zdjęcia sami, Wy dostajecie gotowy album.
+          </h2>
+          <p className="mt-6 leading-7 text-muted-foreground">
+            Nie stawiamy budki z kurtyną. Stawiamy tablet albo dajemy kod QR na stoliki. Gość otwiera
+            aparat we własnym telefonie i w kilka sekund dorzuca kadr do Waszego albumu.
+          </p>
+        </div>
+
+        <ol className="mt-14 grid gap-px overflow-hidden rounded-lg bg-border sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            ["Kod QR na stoliku", "Bez instalowania aplikacji i bez zakładania konta. Skanuje i już jest w środku."],
+            ["Zdjęcie albo film", "Odliczanie, seria kilku kadrów albo ośmiosekundowe nagranie z życzeniami."],
+            ["Seria staje się animacją", "Z trzech kadrów robimy jeden zapętlony materiał. To jest to, co goście wysyłają dalej."],
+            ["Ramka wypalona w plik", "Każde zdjęcie wychodzi z Waszymi imionami i datą, w wybranym stylu oprawy."],
+          ].map(([tytul, opis], nr) => (
+            <li key={tytul} className="bg-background p-8">
+              <span className="font-display text-3xl text-accent">{String(nr + 1).padStart(2, "0")}</span>
+              <h3 className="mt-5 text-lg font-semibold tracking-[-0.02em]">{tytul}</h3>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">{opis}</p>
+            </li>
+          ))}
+        </ol>
+
+        <div className="mt-12 flex flex-wrap items-center gap-4">
+          {events?.[0] && (
+            <Link href={`/e/${events[0].slug}/fotobudka`}>
+              <Button size="lg" className="gap-2">Zobacz fotobudkę na żywo <ArrowUpRight className="h-4 w-4" /></Button>
+            </Link>
+          )}
+          <p className="text-sm text-muted-foreground">
+            Otworzy się prawdziwa fotobudka i poprosi o dostęp do kamery. Nic nie zostaje wysłane, dopóki sam nie klikniesz.
+          </p>
+        </div>
+      </div>
+    </section>
+
     <section id="realizacje" className="surface-paper px-4 py-24">
       <div className="mx-auto max-w-6xl">
         <div className="film-edge mb-16" />
