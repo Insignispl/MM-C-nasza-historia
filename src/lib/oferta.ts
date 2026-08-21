@@ -139,3 +139,10 @@ export const LOKALIZACJE: Lokalizacja[] = [
     opis: "Biuro i studio fotograficzne.",
   },
 ];
+
+export const KONTAKT = {
+  email: "kontakt@storyatelier.pl",
+  /** Do wyswietlenia. Wersja do href jest w telHref - bez spacji, inaczej czesc telefonow nie zadzwoni. */
+  telefon: "+48 504 652 416",
+  telHref: "+48504652416",
+};

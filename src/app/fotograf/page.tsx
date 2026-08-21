@@ -1,7 +1,7 @@
 import { PhotographerDashboard } from "./PhotographerDashboard";
 
 export const metadata = {
-  title: "Panel fotografa | Album ślubny",
+  title: "Panel",
   robots: { index: false, follow: false },
 };
 

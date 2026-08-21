@@ -5,7 +5,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: "/admin",
+      // Panel oraz prywatne strony konkretnych wydarzen nie naleza do wyszukiwarki.
+      disallow: ["/fotograf", "/e/"],
     },
     sitemap: `${process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000"}/sitemap.xml`,
   };

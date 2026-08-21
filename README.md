@@ -39,7 +39,6 @@ Aplikacja działa na `http://localhost:3000`.
 NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<publishable-anon-key>
 NEXT_PUBLIC_BASE_URL=https://storyatelier.pl
-SITE_PASSWORD=<optional-legacy-site-password>
 ```
 
 Nie umieszczaj sekretów administracyjnych, haseł gości ani `service_role` w zmiennych rozpoczynających się od `NEXT_PUBLIC_`.

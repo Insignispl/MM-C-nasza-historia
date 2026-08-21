@@ -83,7 +83,7 @@ export function drawMountedPhoto(target: HTMLCanvasElement, source: CanvasImageS
   const srodekPodpisu = podstawa + marginesDolny * 0.42;
   ctx.textAlign = "center";
   ctx.fillStyle = paleta.podpis;
-  ctx.font = `600 ${Math.round(krotszy * 0.052)}px "Playfair Display", Georgia, serif`;
+  ctx.font = `600 ${Math.round(krotszy * 0.052)}px "Bricolage Grotesque", Inter, system-ui, sans-serif`;
   ctx.fillText(opts.coupleName, sourceWidth / 2, srodekPodpisu, kadrW);
 
   const data = formatujDate(opts.eventDate);

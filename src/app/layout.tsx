@@ -2,20 +2,21 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { Inter, Playfair_Display } from "next/font/google";
+import { Bricolage_Grotesque, Inter } from "next/font/google";
 import { THEME_BOOTSTRAP_SCRIPT } from "@/lib/theme";
 
+// latin-ext jest KONIECZNY: polskie ł ą ę ś ż ź ć ń nie wystepuja w podzbiorze latin,
+// wiec bez niego przegladarka rysuje je krojem zastepczym w srodku wyrazu.
 const inter = Inter({
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
   display: "swap",
   variable: "--font-inter",
 });
 
-const playfair = Playfair_Display({
-  subsets: ["latin"],
+const bricolage = Bricolage_Grotesque({
+  subsets: ["latin", "latin-ext"],
   display: "swap",
-  variable: "--font-playfair",
-  weight: ["400", "500", "600", "700"],
+  variable: "--font-bricolage",
 });
 
 export const viewport: Viewport = {
@@ -54,7 +55,7 @@ export default async function RootLayout({
     // suppressHydrationWarning dotyczy WYLACZNIE tego elementu i jego atrybutow:
     // skrypt w <head> dopisuje data-theme przed hydratacja, wiec serwer i klient
     // z definicji sie tu roznia. Nie tlumi to rozjazdow w tresci strony.
-    <html lang="pl" suppressHydrationWarning className={`${inter.variable} ${playfair.variable}`}>
+    <html lang="pl" suppressHydrationWarning className={`${inter.variable} ${bricolage.variable}`}>
       <head>
         {/* Musi byc pierwszy i synchroniczny: ustawia motyw przed pierwszym malowaniem,
             inaczej na projektorze w zaciemnionej sali widac blysk bialego tla. */}

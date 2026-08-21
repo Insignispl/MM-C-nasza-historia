@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/Button";
 import { createClient } from "@/lib/supabase/server";
-import { LOKALIZACJE } from "@/lib/oferta";
+import { KONTAKT, LOKALIZACJE } from "@/lib/oferta";
+import { PlayableHeadline } from "./PlayableHeadline";
 import { UslugiSekcja } from "./UslugiSekcja";
 import { ArrowUpRight, MapPin } from "lucide-react";
 import Image from "next/image";
@@ -17,14 +18,22 @@ export async function PhotographerLanding() {
 
   return <>
     <section className="surface-studio px-4 pb-24 pt-36">
-      <div className="mx-auto grid max-w-6xl gap-14 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
+      <div className="mx-auto grid max-w-6xl gap-14 lg:grid-cols-[1.35fr_0.65fr] lg:items-end">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-accent">
             {LOKALIZACJE.map((l) => l.miasto).join(" · ")}
           </p>
-          <h1 className="mt-8 text-[clamp(2.75rem,7vw,5.5rem)] font-semibold leading-[0.94] tracking-[-0.035em]">
-            Fotografia, film<br />i <span className="text-accent">studio nagrań</span>.
-          </h1>
+          {/* DOKLADNIE dwa wiersze: kazdy segment jest blokiem z zakazem lamania.
+              Stopien ma maksimum 5rem, bo przy 5,5rem dluzszy wiersz nie mieszczil sie
+              w kolumnie. Ponizej sm lamanie jest dozwolone - na waskim telefonie
+              nowrap wychodzilby za krawedz. */}
+          <PlayableHeadline
+            className="mt-8 text-[clamp(2.5rem,6.4vw,5rem)] font-semibold leading-[0.94] tracking-[-0.035em]"
+            wiersze={[
+              [{ tekst: "Fotografia, film" }],
+              [{ tekst: "i " }, { tekst: "studio nagrań.", akcent: true }],
+            ]}
+          />
           <p className="mt-8 max-w-xl text-lg leading-8 text-muted-foreground">
             Rejestrujemy śluby i wydarzenia, realizujemy wideo na zamówienie i wynajmujemy w pełni wyposażone studio
             tym, którzy nagrywają swój pierwszy podcast.
@@ -96,8 +105,20 @@ export async function PhotographerLanding() {
 
     <section id="kontakt" className="surface-studio px-4 py-24">
       <div className="mx-auto max-w-6xl">
-        <h2 className="text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">Gdzie nas znaleźć</h2>
-        <div className="mt-14 grid gap-px overflow-hidden rounded-lg bg-border md:grid-cols-2">
+        <h2 className="text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">Napisz albo zadzwoń</h2>
+        <div className="mt-12 grid gap-10 sm:grid-cols-2">
+          <a href={`mailto:${KONTAKT.email}`} className="group block">
+            <span className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">E-mail</span>
+            <span className="mt-3 block break-all text-2xl font-semibold tracking-[-0.02em] transition-colors group-hover:text-accent sm:text-3xl">{KONTAKT.email}</span>
+          </a>
+          <a href={`tel:${KONTAKT.telHref}`} className="group block">
+            <span className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">Telefon</span>
+            <span className="mt-3 block text-2xl font-semibold tracking-[-0.02em] transition-colors group-hover:text-accent sm:text-3xl">{KONTAKT.telefon}</span>
+          </a>
+        </div>
+        <div className="film-edge my-14" />
+        <h3 className="text-2xl font-semibold tracking-[-0.02em]">Dwa biura</h3>
+        <div className="mt-8 grid gap-px overflow-hidden rounded-lg bg-border md:grid-cols-2">
           {LOKALIZACJE.map((lokalizacja) => (
             <div key={lokalizacja.miasto} className="bg-background p-8">
               <MapPin className="h-5 w-5 text-accent" />
