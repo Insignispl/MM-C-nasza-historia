@@ -19,7 +19,20 @@ export async function PhotographerLanding() {
   const okladka = [...coverByEvent.values()][0];
 
   return <>
-    <section className="surface-studio px-4 pb-24 pt-36">
+    <section className="surface-studio relative isolate overflow-hidden px-4 pb-24 pt-36">
+      {/* Dym i satyna. Czysta dekoracja, wiec aria-hidden i pointer-events: none
+          (w klasie .hero-tlo). Ujemny z-index dziala, bo sekcja ma `isolate`:
+          warstwa siedzi pod trescia, ale nie wypada za tlo strony.
+          Kolejnosc dzieci = kolejnosc malowania. .hero-scrim jest ostatni, bo musi
+          przyciemniac wszystko pod soba - to on trzyma kontrast akapitu. */}
+      <div className="hero-tlo -z-10" aria-hidden="true">
+        <span className="hero-dym-a" />
+        <span className="hero-dym-b" />
+        <span className="hero-dym-c" />
+        <span className="hero-satyna" />
+        <span className="hero-polysk" />
+        <span className="hero-scrim" />
+      </div>
       <div className="mx-auto grid max-w-6xl gap-14 lg:grid-cols-[1.35fr_0.65fr] lg:items-end">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-accent">

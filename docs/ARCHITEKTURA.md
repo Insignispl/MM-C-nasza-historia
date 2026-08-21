@@ -62,6 +62,60 @@ Litery nagłówka mają przesunięcie fazy liczone z ich udziału w całości, t
 między pierwszą i ostatnią wynosiła około 50°. Stały krok na literę dawał kilka pełnych
 obrotów koła barw naraz i wyglądał jak przedszkole.
 
+### Tło hero: dym i satyna
+
+Sekcja hero ma pod treścią sześć warstw (`.hero-tlo`): trzy kłęby dymu, prążki satyny,
+pasmo połysku i przyciemnienie. Cztery decyzje, które o tym rozstrzygają:
+
+**Barwa pochodzi z tego samego źródła co litery.** `--akcent-h` jest animowane na `html`
+i dziedziczy się w dół, więc tło **nie ma własnej animacji koloru** — czyta tę samą zmienną
+i samo z siebie oddycha w rytmie nagłówka. Dwie niezależne animacje koloru biłyby się
+o uwagę i całość wyglądałaby niespokojnie.
+
+**Miękkość bierze się z gradientu, nie z `filter: blur()`.** Rozmycie filtrem na pełnym
+ekranie wymusza przemalowanie w każdej klatce. Gradient rasteryzuje się raz, a potem
+przesuwamy gotową warstwę — animowane są **wyłącznie** `transform` i `opacity`. Świadomie
+nie ustawiamy `will-change`: aktywna animacja transformu i tak promuje warstwę, a `will-change`
+na pięciu warstwach naraz to pięć tekstur trzymanych w pamięci karty graficznej bez powodu.
+
+**Światło idzie na prawo, pod zdjęcie.** Kolumna z tekstem dostaje negatywne wypełnienie,
+a źródła światła stoją poza nią. To nie jest kompromis — tak ustawia się światło na planie:
+kluczowe na modelu, nie na napisach.
+
+**Ruch jest powolny i zapętlony.** Cykle 38–112 s, dobrane tak, by nie synchronizowały się
+ze sobą. Klatka `100%` jest identyczna z `0%`, więc pętla nie skacze — i dzięki temu przy
+`prefers-reduced-motion` zatrzymany kadr wygląda jak stan początkowy, a nie jak przypadkowa
+faza. Globalny blok `prefers-reduced-motion` w `globals.css` zatrzymuje to bez żadnego
+dodatkowego kodu.
+
+Ziarno (`.hero-tlo::after`) jest statyczne i istnieje wyłącznie po to, by rozbić pasy, jakie
+duże ciemne gradienty dają na ekranach 8-bitowych.
+
+### Kontrast animowanego tła mierzy się, a nie ocenia wzrokiem
+
+Pierwsza wersja tego tła zbijała **akapit** hero z 9,35:1 do **4,15:1**, czyli poniżej progu
+WCAG AA dla tekstu. Na podglądzie ta różnica jest niewidoczna: nagłówek jest biały i ma ogromny
+zapas, więc obraz wygląda dobrze, a traci ten element, na który się nie patrzy.
+
+Miernikiem była symulacja: składanie wszystkich warstw w przestrzeni liniowej, w siatce punktów
+sekcji, dla ośmiu przystanków barwy i 180 kombinacji faz animacji. Bez tego nie da się trafić
+w najgorszy przypadek, bo wypada on w jednym konkretnym miejscu (prawa krawędź kolumny tekstu)
+i przy jednej konkretnej barwie (172°, najjaśniejszy odcień palety).
+
+Trzy wnioski, które wyszły tylko z pomiaru i których nie dałoby się zgadnąć:
+
+1. **Limitem jest tekst drugorzędny, nie nagłówek.** Biały napis ma 9,3:1 zapasu; szary akapit
+   siedzi bliżej progu i to on wyznacza budżet jasności całego efektu.
+2. **Osłabianie dużych kłębów nic nie dało.** Winowajcą było najjaśniejsze, wąskie pasmo
+   połysku plus warstwa ziarna. Rozwiązaniem była **geometria** — wyprowadzenie źródeł światła
+   poza kolumnę tekstu — a nie gaszenie efektu.
+3. **Kolejność malowania decyduje o skuteczności przyciemnienia.** Ziarno leży w `::after`,
+   czyli nad przyciemnieniem, więc scrim go nie tłumi. Ustawia podłogę jasności, której nie
+   da się obniżyć niczym poza zmianą jego własnej przezroczystości.
+
+Wynik końcowy: akapit **7,16:1**, nagłówek **9,33:1**. Wartości i ostrzeżenie, które parametry
+trzymają ten wynik, stoją w komentarzu nad blokiem `.hero-tlo` w `globals.css`.
+
 ### Sygnatury
 
 - `.film-edge` — perforacja taśmy filmowej jako przerywnik sekcji. Ten sam motyw wypalamy

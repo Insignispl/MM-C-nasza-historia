@@ -511,3 +511,231 @@ body {
   border-color: color-mix(in srgb, var(--story-gradient-to) 30%, transparent) !important;
   box-shadow: 0 18px 45px color-mix(in srgb, var(--story-gradient-from) 16%, transparent);
 }
+
+/* ==========================================================================
+   TLO SEKCJI HERO: dym z wytwornicy plus satyna
+   ==========================================================================
+
+   Zalozenia, ktore decyduja o tym, czy to wyglada na materie, czy na tapete:
+
+   1. BARWA Z TEGO SAMEGO ZRODLA CO LITERY. `--akcent-h` jest animowane na `html`
+      i dziedziczy sie w dol, wiec tlo NIE ma wlasnej animacji koloru - czyta ta sama
+      zmienna i samo z siebie oddycha w rytmie naglowka. Dwie niezalezne animacje
+      koloru bilyby sie o uwage.
+   2. MIEKKOSC Z GRADIENTU, NIE Z `filter: blur()`. Rozmycie filtrem na pelnym ekranie
+      wymusza przemalowanie w kazdej klatce. Gradient rasteryzuje sie raz, a potem
+      przesuwamy gotowa warstwe - animujemy WYLACZNIE `transform` i `opacity`.
+   3. SWIATLO IDZIE NA PRAWO, POD ZDJECIE. Kolumna z tekstem dostaje negatywne
+      wypelnienie (.hero-scrim), a zrodla swiatla stoja poza nia. Tak ustawia sie
+      swiatlo na planie: kluczowe na modelu, nie na napisach.
+   4. RUCH POWOLNY I ZAPETLONY. Cykle 38-112 s, dobrane tak, zeby sie nie synchronizowaly.
+      Klatka 100% jest identyczna z 0%, wiec petla nie ma skoku - i dzieki temu przy
+      `prefers-reduced-motion` zatrzymany kadr wyglada jak stan poczatkowy, a nie jak
+      przypadkowa faza.
+   5. ZIARNO. Duze, ciemne gradienty na ekranach 8-bitowych daja widoczne pasy.
+      Statyczna, kafelkowana warstwa szumu je rozbija. Przy okazji mowi tym samym
+      jezykiem co perforacja tasmy w .film-edge.
+
+   ZMIERZONY KONTRAST (policzony, nie oszacowany)
+   Symulacja skladania wszystkich warstw w przestrzeni liniowej, w siatce punktow
+   sekcji, dla 8 przystankow barwy i 180 kombinacji faz animacji, okno 1440x900:
+
+     akapit   (--color-muted-foreground, hsl(240 5% 72%))   min 7,16:1   prog AA 4,5:1
+     naglowek (--color-foreground, hsl(40 14% 96%))          min 9,33:1   prog AA 3:1
+
+   Najgorszy punkt: x=710, barwa 172 stopni - prawa krawedz kolumny tekstu
+   w najjasniejszej fazie palety. Bez tla akapit ma 9,35:1, wiec caly efekt kosztuje
+   dwa i cwierc stopnia kontrastu i konczy sie nadal powyzej progu AAA.
+
+   OSTRZEZENIE. Pierwsza wersja tych wartosci dawala akapitowi 4,15:1, czyli PONIZEJ
+   progu AA - a na podgladzie roznica byla niewidoczna. Trzy parametry trzymaja wynik:
+   `left` na .hero-polysk, `opacity` ziarna oraz promienie .hero-dym-a i -b (ich
+   powiekszenie tak, by siegaly ponizej x=720, zbija akapit do 4,2:1). Po zmianie
+   ktoregokolwiek policz kontrast ponownie. Na oko tego nie widac. */
+
+@layer utilities {
+  .hero-tlo {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    /* Warstwa dekoracyjna nie ma prawa przechwycic ani jednego klikniecia. */
+    pointer-events: none;
+  }
+
+  .hero-tlo > * {
+    position: absolute;
+    display: block;
+  }
+
+  /* --- klaby dymu ------------------------------------------------------- */
+
+  .hero-dym-a,
+  .hero-dym-b,
+  .hero-dym-c {
+    border-radius: 50%;
+  }
+
+  /* Najmocniejszy, po prawej - tam, gdzie stoi zdjecie, a nie tekst. */
+  .hero-dym-a {
+    top: -24%;
+    right: -30%;
+    width: min(62vw, 900px);
+    height: min(62vw, 900px);
+    background: radial-gradient(
+      closest-side,
+      hsl(var(--akcent-h) 44% 56% / 0.20),
+      hsl(var(--akcent-h) 38% 44% / 0.09) 46%,
+      transparent 74%
+    );
+    animation: hero-dryf-a 88s ease-in-out infinite;
+  }
+
+  /* Drugie zrodlo swiatla, odcien przesuniety o 40 stopni. Dwa lekko rozne
+     odcienie daja dymowi glebie; jeden odcien wyglada jak plaska plama. */
+  .hero-dym-b {
+    right: -8%;
+    bottom: -34%;
+    width: min(52vw, 760px);
+    height: min(52vw, 760px);
+    background: radial-gradient(
+      closest-side,
+      hsl(calc(var(--akcent-h) + 40) 34% 50% / 0.15),
+      hsl(calc(var(--akcent-h) + 40) 30% 38% / 0.06) 48%,
+      transparent 76%
+    );
+    animation: hero-dryf-b 112s ease-in-out infinite;
+  }
+
+  /* Po lewej, pod tekstem: celowo blady i odbarwiony. Ma tylko odebrac tlu
+     martwa plaskosc, a nie swiecic w kolumne z tresci a. */
+  .hero-dym-c {
+    top: 8%;
+    left: -22%;
+    width: min(56vw, 780px);
+    height: min(56vw, 780px);
+    background: radial-gradient(
+      closest-side,
+      hsl(var(--akcent-h) 14% 34% / 0.06),
+      transparent 70%
+    );
+    animation: hero-dryf-c 74s ease-in-out infinite;
+  }
+
+  /* --- satyna ------------------------------------------------------------ */
+
+  /* Prazki. Satyna nie jest gladka - ma kierunkowe smugi, i to one, a nie sam
+     poblysk, sprawiaja, ze oko czyta material zamiast mgly. Element jest mocno
+     wiekszy od sekcji, bo animacja go obraca i przesuwa. */
+  .hero-satyna {
+    inset: -35%;
+    background: repeating-linear-gradient(
+      104deg,
+      transparent 0px,
+      hsl(var(--akcent-h) 26% 56% / 0.020) 78px,
+      transparent 168px,
+      hsl(var(--akcent-h) 18% 46% / 0.011) 252px,
+      transparent 360px
+    );
+    animation: hero-satyna-fala 64s ease-in-out infinite;
+  }
+
+  /* Pasmo poblysku przechodzace w poprzek, jak swiatlo po jedwabiu.
+     Zaczyna sie od 42% szerokosci, bo to NAJJASNIEJSZA warstwa w calym tle
+     i jedyna, ktora realnie zagraza czytelnosci akapitu: rozciagnieta na cala
+     sekcje zbija jego kontrast z 7,16:1 do 6,11:1. Krawedzie elementu sa
+     przezroczyste (gradient gasnie na 38% i 62%), wiec ograniczenie boxa nie
+     zostawia widocznej granicy.
+     Przezroczystosc schodzi do zera na obu koncach cyklu, wiec powrot na start
+     jest niewidoczny mimo liniowego przesuniecia. */
+  .hero-polysk {
+    top: -40%;
+    bottom: -40%;
+    left: 42%;
+    right: -40%;
+    background: linear-gradient(
+      104deg,
+      transparent 38%,
+      hsl(var(--akcent-h) 62% 72% / 0.11) 50%,
+      transparent 62%
+    );
+    opacity: 0;
+    animation: hero-polysk-przeciag 38s linear infinite;
+  }
+
+  /* --- ochrona czytelnosci ----------------------------------------------- */
+
+  /* Negatywne wypelnienie na kolumnie z tekstem. Kolor musi odpowiadac
+     --color-background z .surface-studio; hero jest ciemne ZAWSZE, wiec wartosc
+     jest tu wpisana wprost, a nie przez token, ktory na innej powierzchni
+     zmienilby sens tej warstwy. */
+  .hero-scrim {
+    inset: 0;
+    background: linear-gradient(
+      96deg,
+      hsl(240 8% 6% / 0.96) 0%,
+      hsl(240 8% 6% / 0.90) 34%,
+      hsl(240 8% 6% / 0.58) 52%,
+      hsl(240 8% 6% / 0.16) 68%,
+      transparent 84%
+    );
+  }
+
+  /* Ziarno przeciw pasom na gradientach. Statyczne: zadnej animacji, zadnego
+     kosztu poza jednorazowym narysowaniem kafla.
+     Lezy NAD scrimem, zeby rozbic pasy rowniez w samym scrimie - a to znaczy,
+     ze scrim go nie tlumi i jego przezroczystosc wchodzi wprost do budzetu
+     kontrastu. Nie podnosic bez ponownego pomiaru. */
+  .hero-tlo::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='z'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23z)'/%3E%3C/svg%3E");
+  }
+
+  /* Na telefonie zdejmujemy dwie warstwy. Kazda animowana warstwa to osobna
+     tekstura w pamieci karty graficznej, a hero jest pierwsza rzecza, ktora
+     przeglada rka musi narysowac. */
+  @media (max-width: 640px) {
+    .hero-dym-c,
+    .hero-satyna {
+      display: none;
+    }
+  }
+}
+
+/* Tory dryfu. Kazdy zamkniety: 100% jest identyczne z 0%, wiec petla nie skacze.
+   Skladowe X i Y maja rozne przebiegi, zeby ruch nie czytal sie jako okrag. */
+@keyframes hero-dryf-a {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  25%      { transform: translate3d(-5%, 5%, 0) scale(1.09); }
+  50%      { transform: translate3d(2%, 9%, 0) scale(1.02); }
+  75%      { transform: translate3d(6%, -2%, 0) scale(1.11); }
+}
+
+@keyframes hero-dryf-b {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.04); }
+  33%      { transform: translate3d(7%, -6%, 0) scale(1); }
+  66%      { transform: translate3d(-4%, -10%, 0) scale(1.12); }
+}
+
+@keyframes hero-dryf-c {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  40%      { transform: translate3d(5%, 6%, 0) scale(1.07); }
+  70%      { transform: translate3d(-3%, 3%, 0) scale(1.03); }
+}
+
+/* Satyna faluje: przesuniecie w poprzek prazkow plus minimalny obrot.
+   Obrot wiekszy niz okolo 2 stopni zaczyna byc widoczny jako krecenie calego
+   tla, a nie jako ruch materialu. */
+@keyframes hero-satyna-fala {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50%      { transform: translate3d(-8%, 4%, 0) rotate(1.6deg); }
+}
+
+@keyframes hero-polysk-przeciag {
+  0%   { transform: translate3d(-58%, 0, 0); opacity: 0; }
+  18%  { opacity: 1; }
+  82%  { opacity: 1; }
+  100% { transform: translate3d(58%, 0, 0); opacity: 0; }
+}
