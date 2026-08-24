@@ -84,11 +84,17 @@ wklejaj ich ponownie w SQL Editorze — stan sprawdzaj w historii migracji Supab
 Ostatnie: **019** modernizuje presety wyglądu stron wydarzeń, **020** dodaje tabelę
 `inquiries` na zapytania z formularza. Bez 020 formularz zwróci błąd zapisu.
 
-> **021 czeka na wgranie i jest pilna.** Robi dwie rzeczy. Usuwa z bazy nazwisko
-> realnego klienta, które migracja 001 zapisała jako domyślną wartość kolumny
-> `couple_name` i które strona albumu wyświetla. Oraz usuwa myślniki em z treści
-> widocznej na stronie: tytuły realizacji i podpisy pod zdjęciami idą z bazy, więc
-> poprawienie samego kodu ich nie zmieniło.
+**021 jest wgrana** (2026-08-24). Usunęła z bazy nazwisko klienta, które migracja 001
+zapisała jako domyślną wartość kolumny `couple_name`, oraz myślniki em z treści widocznej
+na stronie. Zweryfikowane po wgraniu zapytaniem do bazy: zero wystąpień nazwiska, zero
+myślników em w `events`, `event_media`, `event_story_chapters` i `event_guestbook_entries`.
+
+> **Pułapka, która ją raz zabiła.** Pierwsza wersja 021 ustawiała wartość domyślną na
+> kolumnach `groom_name`, `bride_name` i `bride_maiden_name`. Te kolumny **już nie
+> istnieją** — usunęła je przebudowa na wiele wydarzeń. `ALTER TABLE` na nieistniejącej
+> kolumnie przerywa cały skrypt, więc migracja nie wykonałaby **niczego**, a SQL Editor
+> pokazałby po prostu błąd. Zanim wyślesz migrację dotykającą starych kolumn, sprawdź,
+> czy one nadal są.
 
 ## Wdrożenie
 
@@ -115,7 +121,6 @@ Supabase — samo otwarcie go wybudza.
 - [ ] Potwierdzić dni tygodnia dla godzin 9–17 w `src/lib/seo.ts`
 - [ ] Uzupełnić `sameAs` w `src/lib/seo.ts`, gdy powstaną profile w social mediach
 - [ ] Usunąć wiersze testowe z tabeli `inquiries`
-- [ ] Wgrać migrację **021** (nazwisko klienta w bazie oraz myślniki w treści)
 - [ ] Zdecydować, co ze starą trasą `/e/[slug]/kiosk`. Dubluje fotobudkę i ma
       kolory na sztywno, poza systemem tokenów
 
