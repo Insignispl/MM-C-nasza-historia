@@ -61,6 +61,13 @@ prefiksem trafia do przeglądarki każdego odwiedzającego. W repozytorium był 
 Stare trasy prywatnego albumu (`/album`, `/ksiega`, `/dodaj`, `/admin`, `/login`) są
 przekierowywane na `/` z `next.config.ts`.
 
+Trasa `/e/[slug]/kiosk` została **usunięta** (24.08). Była ścisłym podzbiorem fotobudki:
+samo zdjęcie, bez odliczania, serii i wypalanej w plik oprawy, w dodatku z tym samym
+wyciekiem kamery, który w fotobudce naprawiono. Przekierowuje na `/e/[slug]/fotobudka`,
+a nie na stronę główną, bo kod QR mógł już zostać wydrukowany i leżeć na stoliku.
+Kolumny `events.kiosk_*` **zostają** — flaga `kiosk_enabled` włącza teraz wyłącznie
+fotobudkę, a `kiosk_frame_style` wybiera styl oprawy.
+
 ## Gdzie co leży
 
 | Plik | Rola |
@@ -121,8 +128,6 @@ Supabase — samo otwarcie go wybudza.
 - [ ] Potwierdzić dni tygodnia dla godzin 9–17 w `src/lib/seo.ts`
 - [ ] Uzupełnić `sameAs` w `src/lib/seo.ts`, gdy powstaną profile w social mediach
 - [ ] Usunąć wiersze testowe z tabeli `inquiries`
-- [ ] Zdecydować, co ze starą trasą `/e/[slug]/kiosk`. Dubluje fotobudkę i ma
-      kolory na sztywno, poza systemem tokenów
 
 ## Więcej
 

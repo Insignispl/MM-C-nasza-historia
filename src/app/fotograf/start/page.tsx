@@ -37,7 +37,7 @@ export default function PhotographerStartPage() {
           <h1 className="mt-4 font-display text-4xl leading-tight sm:text-5xl">Twoje wydarzenia. Jedno miejsce.</h1>
           <p className="mt-5 max-w-md leading-7 text-muted-foreground">Prywatne narzędzie do prowadzenia reportaży, albumów i cyfrowych pamiątek klientów Story Atelier.</p>
           <div className="mt-10 space-y-4 text-sm text-muted-foreground">
-            {["Wydarzenia niezależne dla każdej Pary", "Moderacja zdjęć, filmów i życzeń", "Gotowe do rozwoju o kiosk oraz Live Wall"].map((item) => <p key={item} className="flex items-center gap-3"><CheckCircle2 className="h-5 w-5 shrink-0" /> {item}</p>)}
+            {["Wydarzenia niezależne dla każdej Pary", "Moderacja zdjęć, filmów i życzeń", "Fotobudka i Live Wall w komplecie"].map((item) => <p key={item} className="flex items-center gap-3"><CheckCircle2 className="h-5 w-5 shrink-0" /> {item}</p>)}
           </div>
         </section>
 

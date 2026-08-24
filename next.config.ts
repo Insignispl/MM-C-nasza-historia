@@ -15,6 +15,10 @@ const nextConfig: NextConfig = {
   // ktore moga jeszcze krazyc u gosci poprzedniego wesela.
   async redirects() {
     return [
+      // Kiosk byl scislym podzbiorem fotobudki: samo zdjecie, bez odliczania, serii
+      // i wypalanej oprawy. Trasa usunieta, ale kod QR moze byc juz wydrukowany
+      // i lezec na stoliku, wiec kierujemy na nastepce, a nie na strone glowna.
+      { source: "/e/:slug/kiosk", destination: "/e/:slug/fotobudka", permanent: true },
       { source: "/album", destination: "/", permanent: true },
       { source: "/ksiega", destination: "/", permanent: true },
       { source: "/dodaj", destination: "/", permanent: true },
