@@ -540,12 +540,20 @@ body {
    Symulacja skladania wszystkich warstw w przestrzeni liniowej, w siatce punktow
    sekcji, dla 8 przystankow barwy i 180 kombinacji faz animacji, okno 1440x900:
 
-     akapit   (--color-muted-foreground, hsl(240 5% 72%))   min 7,16:1   prog AA 4,5:1
-     naglowek (--color-foreground, hsl(40 14% 96%))          min 9,33:1   prog AA 3:1
+     akapit   (--color-muted-foreground, hsl(240 5% 72%))   min 6,46:1   prog AA 4,5:1
+     naglowek (--color-foreground, hsl(40 14% 96%))          min 6,31:1   prog AA 3:1
 
    Najgorszy punkt: x=710, barwa 172 stopni - prawa krawedz kolumny tekstu
-   w najjasniejszej fazie palety. Bez tla akapit ma 9,35:1, wiec caly efekt kosztuje
-   dwa i cwierc stopnia kontrastu i konczy sie nadal powyzej progu AAA.
+   w najjasniejszej fazie palety. Bez tla akapit ma 9,35:1.
+
+   Wynik zalezy od wysokosci sekcji: przy niskim oknie proporcje warstw do tresci
+   sie zmieniaja i liczby spadaja o okolo 0,2. Podane wartosci pochodza z wariantu
+   ciasniejszego (780 px wysokosci sekcji), czyli sa ostrozne.
+
+   Pierwsza wersja tych wartosci byla natomiast ZA SLABA: efektu praktycznie nie bylo
+   widac, bo szczyt jasnosci dym-a wypadal za kartka ze zdjeciem. Podniesienie samych
+   dym-a i dym-b nie kosztuje kontrastu, bo te warstwy nie siegaja kolumny tekstu -
+   caly koszt siedzi w .hero-polysk, ktory przechodzi w poprzek calego kadru.
 
    OSTRZEZENIE. Pierwsza wersja tych wartosci dawala akapitowi 4,15:1, czyli PONIZEJ
    progu AA - a na podgladzie roznica byla niewidoczna. Trzy parametry trzymaja wynik:
@@ -575,32 +583,37 @@ body {
     border-radius: 50%;
   }
 
-  /* Najmocniejszy, po prawej - tam, gdzie stoi zdjecie, a nie tekst. */
+  /* Najmocniejszy, wyprowadzony daleko w prawo, poza kolumne tekstu.
+     `top: -10%`, a nie -24%: przy wyzszym polozeniu szczyt jasnosci wypadal
+     DOKLADNIE za kartka ze zdjeciem, czyli za nieprzezroczystym elementem,
+     ktory mial oswietlac. Na ekranie zostawal sam blady skraj. */
   .hero-dym-a {
-    top: -24%;
+    top: -10%;
     right: -30%;
-    width: min(62vw, 900px);
-    height: min(62vw, 900px);
+    width: min(70vw, 1000px);
+    height: min(70vw, 1000px);
     background: radial-gradient(
       closest-side,
-      hsl(var(--akcent-h) 44% 56% / 0.20),
-      hsl(var(--akcent-h) 38% 44% / 0.09) 46%,
+      hsl(var(--akcent-h) 44% 62% / 0.46),
+      hsl(var(--akcent-h) 38% 46% / 0.21) 46%,
       transparent 74%
     );
     animation: hero-dryf-a 88s ease-in-out infinite;
   }
 
   /* Drugie zrodlo swiatla, odcien przesuniety o 40 stopni. Dwa lekko rozne
-     odcienie daja dymowi glebie; jeden odcien wyglada jak plaska plama. */
+     odcienie daja dymowi glebie; jeden odcien wyglada jak plaska plama.
+     Podniesiony (bottom: -14%) w pusty pas pod trescia hero - to jedyne miejsce
+     w kadrze, gdzie nic nie stoi, wiec dym jest tam najlepiej widoczny. */
   .hero-dym-b {
     right: -8%;
-    bottom: -34%;
-    width: min(52vw, 760px);
-    height: min(52vw, 760px);
+    bottom: -14%;
+    width: min(64vw, 920px);
+    height: min(64vw, 920px);
     background: radial-gradient(
       closest-side,
-      hsl(calc(var(--akcent-h) + 40) 34% 50% / 0.15),
-      hsl(calc(var(--akcent-h) + 40) 30% 38% / 0.06) 48%,
+      hsl(calc(var(--akcent-h) + 40) 34% 50% / 0.30),
+      hsl(calc(var(--akcent-h) + 40) 30% 40% / 0.13) 48%,
       transparent 76%
     );
     animation: hero-dryf-b 112s ease-in-out infinite;
