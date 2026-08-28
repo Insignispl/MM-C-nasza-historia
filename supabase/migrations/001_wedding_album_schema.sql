@@ -17,7 +17,9 @@ CREATE TABLE IF NOT EXISTS public.wedding_settings (
   cover_image text,
   primary_color text NOT NULL DEFAULT '#9f7aea',
   secondary_color text NOT NULL DEFAULT '#fbd38d',
-  guest_password text NOT NULL DEFAULT 'czujko2026',
+  -- Bylo tu nazwisko klienta plus rok, czyli dane osobowe uzyte jako haslo.
+  -- Migracja 022 czysci rowniez istniejace bazy.
+  guest_password text NOT NULL DEFAULT gen_random_uuid()::text,
   allow_uploads boolean NOT NULL DEFAULT true,
   require_moderation boolean NOT NULL DEFAULT true,
   created_at timestamptz NOT NULL DEFAULT now(),
